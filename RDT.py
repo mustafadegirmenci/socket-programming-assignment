@@ -72,18 +72,18 @@ RDT_VALUES_FSM = RDT_Struct_Counter_FSM()
 UDT_VALUES_FSM = UDT_Struct_Counter_FSM()
 
 class PacketHandler:
-    def make_packet(self, data: bytes, seq_num=0b1111, ack=False) -> bytes:
+    def make_packet(self,data: bytes, seq_num=0b1111, ack=False) -> bytes:
         flags = pack('!B', (seq_num << 4) + ack)
         checksum = self.calculate_md5_checksum(flags + data)
         return checksum + flags + data
     
-    def extract_packet(self, pkt: bytes) -> List[bytes, int]:
+    def extract_packet(self,pkt: bytes) -> List[bytes, int]:
         checksum = pkt[:16]
         flags = pkt[16:17]
         data = pkt[17:]
         return checksum, data, flags
 
-    def is_corrupt(self, pkt: bytes) -> bool:
+    def is_corrupt( self,pkt: bytes) -> bool:
         received_checksum, data, flags = self.extract_packet(pkt)
         calculated_checksum = self.calculate_md5_checksum(flags + data)
         return received_checksum != calculated_checksum
@@ -105,6 +105,7 @@ class ReliableDataTransfer:
     recv_part_seq_num = 0
     estimated_rtt = 1.0
     dev_rtt = 0
+    packet_handler = PacketHandler()
 
 
     def rdt_initialize(self,address: tuple[str, int], bind=False, simulate_unreliability=False) -> None:
@@ -128,7 +129,7 @@ class ReliableDataTransfer:
         elif len(data) > MAX_DATA_SIZE:
             raise OSError(errno.EMSGSIZE, os.strerror(errno.EMSGSIZE))
 
-        sndpkt = PacketHandler.make_pkt(data, self.send_seq_num)
+        sndpkt = self.packet_handler.make_pkt(data, self.send_seq_num)
 
         timeout_interval = max(1e-3, self.estimated_rtt + 4 * self.dev_rtt)
         has_timeout = False
@@ -146,9 +147,9 @@ class ReliableDataTransfer:
                     recv_pkt, _ = self.udt_recv(self)
                     end = time.perf_counter_ns()
 
-                    _, flags = PacketHandler.extract_packet(recv_pkt)
+                    _, flags = self.packet_handler.extract_packet(recv_pkt)
 
-                    if not PacketHandler.is_corrupt(recv_pkt):
+                    if not self.packet_handler.is_corrupt(recv_pkt):
                         if self.is_ack(flags, self.send_seq_num):
                             break
                         elif self.is_ack(flags, self.send_seq_num ^ 1):
@@ -189,13 +190,13 @@ class ReliableDataTransfer:
             recv_pkt, address = self.udt_recv()
             RDT_VALUES_FSM.received_count += 1
 
-            if not PacketHandler.is_corrupt(recv_pkt):
-                data, flags =PacketHandler.extract_packet(recv_pkt)
+            if not self.packet_handler.is_corrupt(recv_pkt):
+                data, flags =self.packet_handler.extract_packet(recv_pkt)
 
                 if self.has_seq(flags, self.recv_seq_num):
                     RDT_VALUES_FSM.nocorrupt_count += 1
 
-                    send_pkt = PacketHandler.make_packet(ack=True, seq_num=self.recv_seq_num)
+                    send_pkt = self.packet_handler.make_packet(ack=True, seq_num=self.recv_seq_num)
                     self.udt_send(send_pkt, address)
 
                     self.recv_seq_num ^= 1
@@ -211,7 +212,7 @@ class ReliableDataTransfer:
             else:
                 RDT_VALUES_FSM.corrupt_checksum_count += 1
 
-            send_pkt =PacketHandler.make_pkt(ack=True, seq_num=self.recv_seq_num ^ 1)
+            send_pkt =self.packet_handler.make_pkt(ack=True, seq_num=self.recv_seq_num ^ 1)
             self.udt_send(send_pkt, address)
 
     def handle_error(self,error_code, message):
