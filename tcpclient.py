@@ -4,7 +4,7 @@ import socket
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
 FILE_COUNT = 10
-FOLDER_RELATIVE_PATH = 'Received Objects'
+FOLDER_RELATIVE_PATH = 'ReceivedObjects'
 
 
 def receive_single_file(server_socket, file_name):
@@ -33,10 +33,6 @@ def request_files():
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
 
-    if not os.path.exists(FOLDER_RELATIVE_PATH):
-        print(f"[WARNING] {FOLDER_RELATIVE_PATH} does not exist. Creating...")
-        os.makedirs(os.path.dirname(FOLDER_RELATIVE_PATH), exist_ok=True)
-
     for i in range(FILE_COUNT):
         large_file_name = f'large-{i}.obj'
         receive_single_file(client_socket, large_file_name)
@@ -50,5 +46,9 @@ def request_files():
 
 
 if __name__ == "__main__":
+    if not os.path.exists(FOLDER_RELATIVE_PATH):
+        print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...")
+        os.mkdir(FOLDER_RELATIVE_PATH)
+
     request_files()
     print(f"[INFO] Requesting files from the server.")
