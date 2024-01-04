@@ -77,11 +77,13 @@ class PacketHandler:
         checksum = self.calculate_md5_checksum(flags + data)
         return checksum + flags + data
     
+
     def extract_packet(self,pkt: bytes) :
         checksum = pkt[:16]
         flags = pkt[16:17]
         data = pkt[17:]
         return List [checksum, data, flags]
+
 
     def is_corrupt( self,pkt: bytes) -> bool:
         received_checksum, data, flags = self.extract_packet(pkt)
