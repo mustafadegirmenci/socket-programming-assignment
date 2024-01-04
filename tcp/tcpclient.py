@@ -1,27 +1,10 @@
 import socket
 
-
-# Get the IP address of the current Docker container's interface
-def get_ip_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        # Connect to a remote server (Google's DNS) to retrieve the IP address
-        s.connect(('8.8.8.8', 80))
-        ip_address = s.getsockname()[0]
-    except socket.error:
-        ip_address = 'localhost'  # Default to localhost if unable to get the IP address
-    finally:
-        s.close()
-    return ip_address
-
-
-HOST = get_ip_address()
-PORT = 8000  # socket server port number
-
-print(HOST)
+SERVER_ADDR = "172.19.0.2"
+SERVER_PORT = 8000  # socket server port number
 
 client_socket = socket.socket()  # instantiate
-client_socket.connect((HOST, PORT))  # connect to the server
+client_socket.connect((SERVER_ADDR, SERVER_PORT))  # connect to the server
 
 message = input(" -> ")  # take input
 
