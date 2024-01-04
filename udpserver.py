@@ -1,6 +1,5 @@
-import socket
-import os
-from RDT import ReliableDataTransfer
+
+from RDT import *
 
 SERVER_HOST = "172.17.0.2"
 SERVER_PORT = 8000
@@ -31,7 +30,7 @@ def main():
             file_name = data.decode()
             send_file_via_udp(rdt, client_address, file_name)
 
-    rdt.socket.close()
+
 
 if __name__ == "__main__":
     main()

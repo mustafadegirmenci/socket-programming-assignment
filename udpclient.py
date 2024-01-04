@@ -45,6 +45,7 @@ def request_files(file_count):
     rdt.socket.close()
     print(f"[INFO] Connection closed.")
 
+
 if __name__ == "__main__":
     if not os.path.exists(FOLDER_RELATIVE_PATH):
         os.makedirs(FOLDER_RELATIVE_PATH)

@@ -97,6 +97,7 @@ class PacketHandler:
 
 
 class ReliableDataTransfer:
+    
     socket: socket.socket
     bound = False
     simulate_experiment = False
@@ -106,6 +107,7 @@ class ReliableDataTransfer:
     estimated_rtt = 1.0
     dev_rtt = 0
     packet_handler = PacketHandler()
+
 
 
     def rdt_initialize(self,address: tuple[str, int], bind=False, simulate_unreliability=False) -> None:
@@ -119,6 +121,8 @@ class ReliableDataTransfer:
 
         self.simulate_unreliability = simulate_unreliability
         self.init = True
+
+
 
 
     def rdt_send(self,data: bytes, address: tuple[str, int] = None) -> int:
