@@ -8,7 +8,7 @@ import time
 from struct import pack, unpack
 from typing import List, Tuple
 import hashlib
-from dataclasses import dataclass
+
 
 
 class UDT_Struct_Counter_FSM:
@@ -18,7 +18,7 @@ class UDT_Struct_Counter_FSM:
         self.lost_count=0
         self.corrupt_checksum_count=0
         self.duplicate_count=0
-        self.nocorrupt_count =0
+        self.nocorrupt_count = 0
         self.received_count=0
         
 class RDT_Struct_Counter_FSM:
@@ -144,10 +144,10 @@ class ReliableDataTransfer:
                 self.start_timer(timeout_interval)
 
                 while True:
-                    recv_pkt, _ = self.udt_recv(self)
+                    recv_pkt, _ = self.udt_recv()
                     end = time.perf_counter_ns()
 
-                    _, flags = self.packet_handler.extract_packet(recv_pkt)
+                    _, flags = self.extract(recv_pkt)
 
                     if not self.packet_handler.is_corrupt(recv_pkt):
                         if self.is_ack(flags, self.send_part_seq_num):
@@ -183,6 +183,7 @@ class ReliableDataTransfer:
         return (flags >> 4) == seq_num
 
     def rdt_recv(self) :
+        data = None
         if not self.init:
             raise OSError(errno.EDESTADDRREQ, os.strerror(errno.EDESTADDRREQ) + ': Call rdt_init')
 
@@ -191,28 +192,28 @@ class ReliableDataTransfer:
             RDT_VALUES_FSM.received_count += 1
 
             if not self.packet_handler.is_corrupt(recv_pkt):
-                data, flags =self.packet_handler.extract_packet(recv_pkt)
+                data, flags =self.extract(recv_pkt)
 
-                if self.has_seq(flags, self.recv_seq_num):
+                if self.has_seq(flags, self.recv_part_seq_num):
                     RDT_VALUES_FSM.nocorrupt_count += 1
 
-                    send_pkt = self.packet_handler.make_packet(ack=True, seq_num=self.recv_seq_num)
+                    send_pkt = self.packet_handler.make_packet(ack=True, data= data,seq_num=self.recv_part_seq_num)
                     self.udt_send(send_pkt, address)
 
-                    self.recv_seq_num ^= 1
+                    self.recv_part_seq_num ^= 1
 
                     if self.bound:
                         return data, address
                     else:
                         return data
-                elif self.has_seq(flags, self.recv_seq_num ^ 1):
+                elif self.has_seq(flags, self.recv_part_seq_num ^ 1):
                     RDT_VALUES_FSM.duplicate_count += 1
                 else:  # shouldn't happen
                     RDT_VALUES_FSM.unexpected_conditions_sending_part += 1
             else:
                 RDT_VALUES_FSM.corrupt_checksum_count += 1
 
-            send_pkt =self.packet_handler.make_packet(ack=True, seq_num=self.recv_seq_num ^ 1)
+            send_pkt =self.packet_handler.make_packet(ack=True,data=data, seq_num=self.recv_part_seq_num ^ 1)
             self.udt_send(send_pkt, address)
 
     def handle_error(self,error_code, message):
@@ -328,4 +329,3 @@ class ReliableDataTransfer:
         return Tuple[ data, address]
 
 
-__all__ = ['rdt_init', 'rdt_send', 'rdt_recv', 'rdt_stats']
