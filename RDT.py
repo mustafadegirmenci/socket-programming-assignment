@@ -77,13 +77,11 @@ class PacketHandler:
         checksum = self.calculate_md5_checksum(flags + data)
         return checksum + flags + data
     
-
-    def extract_packet(self,pkt: bytes) :
+    def extract_packet(self,pkt: bytes):
         checksum = pkt[:16]
         flags = pkt[16:17]
         data = pkt[17:]
-        return List [checksum, data, flags]
-
+        return List[checksum, data, flags]
 
     def is_corrupt( self,pkt: bytes) -> bool:
         received_checksum, data, flags = self.extract_packet(pkt)
@@ -184,7 +182,7 @@ class ReliableDataTransfer:
     def has_seq(self,flags: int, seq_num: int) -> bool:
         return (flags >> 4) == seq_num
 
-    def rdt_recv(self) -> Tuple[Tuple[bytes, Tuple[str, int]], bytes]:
+    def rdt_recv(self) :
         if not self.init:
             raise OSError(errno.EDESTADDRREQ, os.strerror(errno.EDESTADDRREQ) + ': Call rdt_init')
 
@@ -221,10 +219,10 @@ class ReliableDataTransfer:
         raise OSError(error_code, os.strerror(error_code) + ': ' + message)
 
 
-    def extract(self,pkt: bytes) -> List[bytes, int]:
+    def extract(self,pkt: bytes):
         checksum, flags = unpack('!HB', pkt[:3])
         data = pkt[3:]
-        return data, flags
+        return List[data, flags]
 
 
     def is_ack(self,flags: int, seq_num: int) -> bool:
@@ -322,12 +320,12 @@ class ReliableDataTransfer:
             return self.socket.send(pkt)
 
 
-    def udt_recv(self) -> tuple[bytes, tuple[str, int]]:
+    def udt_recv(self) :
         data, address = self.socket.recvfrom(MAX_DATA_SIZE)
 
         UDT_VALUES_FSM.received_count+=1
 
-        return data, address
+        return Tuple[ data, address]
 
 
 __all__ = ['rdt_init', 'rdt_send', 'rdt_recv', 'rdt_stats']
