@@ -19,7 +19,14 @@ def send_single_file(client_socket, file_name):
                     break
                 client_socket.send(data)
         client_socket.send(b"EOF")
-        print(f"[INFO] Finished sending file: {file_path}\n")
+        print(f"[INFO] Finished sending file: {file_name}")
+        print(f"[INFO] Waiting for acknowledgment...")
+
+        ack = client_socket.recv(1024)
+        if ack.decode() == "File received":
+            print(f"[INFO] Acknowledgment for {file_name} received.\n")
+        else:
+            print(f"[WARNING] Acknowledgment for {file_name} not received as expected.\n")
 
     except FileNotFoundError:
         print(f"[ERROR] File not found: {file_path}")
@@ -32,23 +39,11 @@ def send_single_file(client_socket, file_name):
 def handle_single_client(client_socket, client_address):
     for i in range(FILE_COUNT):
         send_single_file(client_socket, f"large-{i}.obj")
-        ack = client_socket.recv(1024)
-        if ack.decode() == "File received":
-            print(f"[INFO] Acknowledgment for large-{i}.obj received.")
-        else:
-            print(f"[WARNING] Acknowledgment for large-{i}.obj not received as expected.")
-
         send_single_file(client_socket, f"small-{i}.obj")
-        ack = client_socket.recv(1024)
-        if ack.decode() == "File received":
-            print(f"[INFO] Acknowledgment for small-{i}.obj received.")
-        else:
-            print(f"[WARNING] Acknowledgment for small-{i}.obj not received as expected.")
-
     print(f"[INFO] All files sent.")
+
     client_socket.close()
     print(f"[INFO] Closed connection with {client_address}.\n")
-
 
 
 def respond_file_requests():
