@@ -1,19 +1,32 @@
 import socket
 
-SERVER_ADDR = "172.17.0.2"
-SERVER_PORT = 8000  # socket server port number
 
-client_socket = socket.socket()  # instantiate
-client_socket.connect((SERVER_ADDR, SERVER_PORT))  # connect to the server
+def receive_file(server_socket, file_path):
+    with open(file_path, 'wb') as file:
+        while True:
+            data = server_socket.recv(1024)
+            if data.endswith(b"EOF"):
+                file.write(data[:-3])
+                break
+            file.write(data)
 
-message = input(" -> ")  # take input
 
-while message.lower().strip() != 'bye':
-    client_socket.send(message.encode())  # send message
-    data = client_socket.recv(1024).decode()  # receive response
+def tcp_client(host, port):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
 
-    print('Received from server: ' + data)  # show in terminal
+    print(f"Connected to server {host}:{port}")
 
-    message = input(" -> ")  # again take input
+    large_file = 'received_large_file'
+    receive_file(client_socket, large_file)
 
-client_socket.close()  # close the connection
+    small_file = 'received_small_file'
+    receive_file(client_socket, small_file)
+
+    client_socket.close()
+
+
+if __name__ == "__main__":
+    HOST = '172.17.0.2'
+    PORT = 8000
+    tcp_client(HOST, PORT)
