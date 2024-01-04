@@ -20,7 +20,7 @@ def receive_single_file(server_socket, file_name):
                     break
                 file.write(data)
         print(f"[INFO] Finished receiving file: {file_path}")
-        print(f"[INFO] Notifying the server...\n")
+        print(f"[INFO] The server has been notified.\n")
         server_socket.send(b"File received")
 
     except FileNotFoundError:
@@ -31,6 +31,8 @@ def receive_single_file(server_socket, file_name):
 
 
 def request_files():
+    print(f"[INFO] Requesting files from the server.")
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
@@ -40,7 +42,7 @@ def request_files():
         receive_single_file(client_socket, f"small-{i}.obj")
 
     print(f"[INFO] Received all the files.")
-    print(f"[INFO] Notifying the server...")
+    print(f"[INFO] Server notified.")
 
     client_socket.sendall(b"Files received")
     client_socket.close()
@@ -53,4 +55,3 @@ if __name__ == "__main__":
         os.mkdir(FOLDER_RELATIVE_PATH)
 
     request_files()
-    print(f"[INFO] Requesting files from the server.")
