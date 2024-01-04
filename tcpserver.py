@@ -3,7 +3,7 @@ import threading
 
 SERVER_HOST = "172.17.0.2"
 SERVER_PORT = 8000
-FILE_COUNT = 10
+FILE_COUNT = 9
 FOLDER_RELATIVE_PATH = "../root/objects"
 BACKLOG_LIMIT = 5
 
