@@ -1,3 +1,4 @@
+import os
 import socket
 
 SERVER_HOST = '172.17.0.2'
@@ -27,11 +28,14 @@ def receive_single_file(server_socket, file_name):
         print(f"[ERROR] Exception occurred during file receive: {e}")
 
 
-
 def request_files():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
+
+    if not os.path.exists(FOLDER_RELATIVE_PATH):
+        print(f"[WARNING] {FOLDER_RELATIVE_PATH} does not exist. Creating...")
+        os.makedirs(os.path.dirname(FOLDER_RELATIVE_PATH), exist_ok=True)
 
     for i in range(FILE_COUNT):
         large_file_name = f'large-{i}.obj'
