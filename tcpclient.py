@@ -35,14 +35,18 @@ def request_files():
 
     for i in range(FILE_COUNT):
         receive_single_file(client_socket, f"large-{i}.obj")
-        receive_single_file(client_socket, f"small-{i}.obj")
+        client_socket.sendall(b"File received")
 
-    client_socket.sendall(b"Files received")
+        receive_single_file(client_socket, f"small-{i}.obj")
+        client_socket.sendall(b"File received")
+
     print(f"[INFO] Received all the files.")
     print(f"[INFO] Notifying the server...")
 
+    client_socket.sendall(b"Files received")
     client_socket.close()
     print(f"[INFO] Connection closed.")
+
 
 
 if __name__ == "__main__":

@@ -32,19 +32,23 @@ def send_single_file(client_socket, file_name):
 def handle_single_client(client_socket, client_address):
     for i in range(FILE_COUNT):
         send_single_file(client_socket, f"large-{i}.obj")
+        ack = client_socket.recv(1024)
+        if ack.decode() == "File received":
+            print(f"[INFO] Acknowledgment for large-{i}.obj received.")
+        else:
+            print(f"[WARNING] Acknowledgment for large-{i}.obj not received as expected.")
+
         send_single_file(client_socket, f"small-{i}.obj")
+        ack = client_socket.recv(1024)
+        if ack.decode() == "File received":
+            print(f"[INFO] Acknowledgment for small-{i}.obj received.")
+        else:
+            print(f"[WARNING] Acknowledgment for small-{i}.obj not received as expected.")
 
     print(f"[INFO] All files sent.")
-    print(f"[INFO] Waiting for acknowledgment from the client...")
-
-    ack = client_socket.recv(1024)
-    if ack.decode() == "Files received":
-        print(f"[INFO] Client acknowledged receipt of all files.")
-    else:
-        print(f"[WARNING] Client acknowledgment not received as expected.")
-
     client_socket.close()
     print(f"[INFO] Closed connection with {client_address}.\n")
+
 
 
 def respond_file_requests():
