@@ -129,7 +129,7 @@ class ReliableDataTransfer:
         elif len(data) > MAX_DATA_SIZE:
             raise OSError(errno.EMSGSIZE, os.strerror(errno.EMSGSIZE))
 
-        sndpkt = self.packet_handler.make_packet(data, self.send_seq_num)
+        sndpkt = self.packet_handler.make_packet(data, self.send_part_seq_num)
 
         timeout_interval = max(1e-3, self.estimated_rtt + 4 * self.dev_rtt)
         has_timeout = False
@@ -150,9 +150,9 @@ class ReliableDataTransfer:
                     _, flags = self.packet_handler.extract_packet(recv_pkt)
 
                     if not self.packet_handler.is_corrupt(recv_pkt):
-                        if self.is_ack(flags, self.send_seq_num):
+                        if self.is_ack(flags, self.send_part_seq_num):
                             break
-                        elif self.is_ack(flags, self.send_seq_num ^ 1):
+                        elif self.is_ack(flags, self.send_part_seq_num ^ 1):
                             RDT_VALUES_FSM.duplicate_ack_count += 1
                         else:  # shouldn't happen
                             RDT_VALUES_FSM.unexpected_conditions_sending_part+= 1
@@ -168,7 +168,7 @@ class ReliableDataTransfer:
             else:
                 RDT_VALUES_FSM.ack_count += 1
 
-                self.send_seq_num ^= 1
+                self.send_part_seq_num ^= 1
 
                 if not has_timeout:
                     sample_rtt = (end - start) / 1e9
