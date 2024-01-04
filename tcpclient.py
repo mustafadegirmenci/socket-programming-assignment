@@ -1,6 +1,6 @@
 import os
 import socket
-import sys
+import time
 
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
@@ -32,6 +32,8 @@ def receive_single_file(server_socket, file_name):
 
 
 def request_files(file_count):
+    start_time = time.time()
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
@@ -50,23 +52,23 @@ def request_files(file_count):
     client_socket.close()
     print(f"[INFO] Connection closed.")
 
+    elapsed_time = time.time() - start_time
+    return elapsed_time
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("[ERROR] Usage: python3 tcpclient.py <file_count>")
-    else:
-        try:
-            requested_file_count = int(sys.argv[1])
 
-            if requested_file_count > 10:
-                print(f"[WARNING] Requested file count ({requested_file_count}) exceeds the limit.")
-                print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files.\n")
-                requested_file_count = FILE_REQUEST_LIMIT
+def request_files_and_measure_time(requested_file_count):
+    try:
+        if requested_file_count > 10:
+            print(f"[WARNING] Requested file count ({requested_file_count}) exceeds the limit.")
+            print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files.\n")
+            requested_file_count = FILE_REQUEST_LIMIT
 
-            if not os.path.exists(FOLDER_RELATIVE_PATH):
-                print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
-                os.mkdir(FOLDER_RELATIVE_PATH)
+        if not os.path.exists(FOLDER_RELATIVE_PATH):
+            print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
+            os.mkdir(FOLDER_RELATIVE_PATH)
 
-            request_files(requested_file_count)
-        except ValueError:
-            print("[ERROR] Please provide a valid integer for file count.")
+        elapsed_time = request_files(requested_file_count)
+        return elapsed_time
+
+    except ValueError:
+        print("[ERROR] Please provide a valid integer for file count.")

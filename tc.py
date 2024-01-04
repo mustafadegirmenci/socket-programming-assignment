@@ -37,19 +37,3 @@ def show_active_rules():
     print(f"[INFO] Showing TC rules...\n")
     command = "tc qdisc show"
     subprocess.run(command, shell=True)
-
-
-apply_packet_loss(20)
-show_active_rules()
-
-apply_packet_delay_normal(100, 20)
-show_active_rules()
-
-apply_packet_delay_uniform(100, 20)
-show_active_rules()
-
-apply_packet_corruption(20)
-show_active_rules()
-
-clear_rules()
-show_active_rules()
