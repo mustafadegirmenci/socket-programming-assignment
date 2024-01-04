@@ -56,16 +56,17 @@ if __name__ == "__main__":
         print("[ERROR] Usage: python3 tcpclient.py <file_count>")
     else:
         try:
-            file_count = int(sys.argv[1])
+            requested_file_count = int(sys.argv[1])
 
-            if file_count > 10:
+            if requested_file_count > 10:
                 print("[WARNING] Requested file count exceeds the limit.")
                 print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files..")
+                requested_file_count =  FILE_REQUEST_LIMIT
 
             if not os.path.exists(FOLDER_RELATIVE_PATH):
                 print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
                 os.mkdir(FOLDER_RELATIVE_PATH)
 
-            request_files(file_count)
+            request_files(requested_file_count)
         except ValueError:
             print("[ERROR] Please provide a valid integer for file count.")
