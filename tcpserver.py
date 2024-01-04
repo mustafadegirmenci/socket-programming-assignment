@@ -3,7 +3,6 @@ import threading
 
 SERVER_HOST = "172.17.0.2"
 SERVER_PORT = 8000
-FILE_COUNT = 9
 FOLDER_RELATIVE_PATH = "../root/objects"
 BACKLOG_LIMIT = 5
 
@@ -37,10 +36,13 @@ def send_single_file(client_socket, file_name):
 
 
 def handle_single_client(client_socket, client_address):
-    for i in range(FILE_COUNT):
+    file_count = int(client_socket.recv(1024).decode())
+    print(f"[INFO] Client {client_address} requested {file_count} files.")
+
+    for i in range(file_count):
         send_single_file(client_socket, f"large-{i}.obj")
         send_single_file(client_socket, f"small-{i}.obj")
-    print(f"[INFO] All files sent.")
+    print(f"[INFO] All {file_count} files sent.")
 
     client_socket.close()
     print(f"[INFO] Closed connection with {client_address}.\n")
