@@ -1,10 +1,11 @@
 import os
 import socket
+import sys
 
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
-FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = 'ReceivedObjects'
+FILE_REQUEST_LIMIT = 10
 
 
 def receive_single_file(server_socket, file_name):
@@ -51,8 +52,20 @@ def request_files(file_count):
 
 
 if __name__ == "__main__":
-    if not os.path.exists(FOLDER_RELATIVE_PATH):
-        print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
-        os.mkdir(FOLDER_RELATIVE_PATH)
+    if len(sys.argv) != 2:
+        print("[ERROR] Usage: python3 tcpclient.py <file_count>")
+    else:
+        try:
+            file_count = int(sys.argv[1])
 
-    request_files(FILE_COUNT)
+            if file_count > 10:
+                print("[WARNING] Requested file count exceeds the limit.")
+                print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files..")
+
+            if not os.path.exists(FOLDER_RELATIVE_PATH):
+                print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
+                os.mkdir(FOLDER_RELATIVE_PATH)
+
+            request_files(file_count)
+        except ValueError:
+            print("[ERROR] Please provide a valid integer for file count.")
