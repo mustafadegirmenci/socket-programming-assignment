@@ -76,4 +76,4 @@ if __name__ == "__main__":
     plt.grid()
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('plot.png')
