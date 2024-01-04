@@ -36,7 +36,7 @@ def request_files(file_count):
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
 
-    print(f"[INFO] Requesting {file_count} files from the server.")
+    print(f"[INFO] Requesting {file_count} files from the server.\n")
     client_socket.send(str(file_count).encode())
 
     for i in range(file_count):
@@ -59,9 +59,9 @@ if __name__ == "__main__":
             requested_file_count = int(sys.argv[1])
 
             if requested_file_count > 10:
-                print("[WARNING] Requested file count exceeds the limit.")
-                print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files..")
-                requested_file_count =  FILE_REQUEST_LIMIT
+                print(f"[WARNING] Requested file count ({requested_file_count}) exceeds the limit.")
+                print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files.\n")
+                requested_file_count = FILE_REQUEST_LIMIT
 
             if not os.path.exists(FOLDER_RELATIVE_PATH):
                 print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
