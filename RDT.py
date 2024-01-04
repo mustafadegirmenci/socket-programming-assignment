@@ -129,7 +129,7 @@ class ReliableDataTransfer:
         elif len(data) > MAX_DATA_SIZE:
             raise OSError(errno.EMSGSIZE, os.strerror(errno.EMSGSIZE))
 
-        sndpkt = self.packet_handler.make_pkt(data, self.send_seq_num)
+        sndpkt = self.packet_handler.make_packet(data, self.send_seq_num)
 
         timeout_interval = max(1e-3, self.estimated_rtt + 4 * self.dev_rtt)
         has_timeout = False
@@ -212,7 +212,7 @@ class ReliableDataTransfer:
             else:
                 RDT_VALUES_FSM.corrupt_checksum_count += 1
 
-            send_pkt =self.packet_handler.make_pkt(ack=True, seq_num=self.recv_seq_num ^ 1)
+            send_pkt =self.packet_handler.make_packet(ack=True, seq_num=self.recv_seq_num ^ 1)
             self.udt_send(send_pkt, address)
 
     def handle_error(self,error_code, message):
