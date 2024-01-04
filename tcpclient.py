@@ -19,7 +19,9 @@ def receive_single_file(server_socket, file_name):
                     file.write(data[:-3])
                     break
                 file.write(data)
-        print(f"[INFO] Finished receiving file: {file_path}\n")
+        print(f"[INFO] Finished receiving file: {file_path}")
+        print(f"[INFO] Notifying the server...\n")
+        server_socket.send(b"File received")
 
     except FileNotFoundError:
         print(f"[ERROR] Could not write to file: {file_path}")
@@ -35,10 +37,7 @@ def request_files():
 
     for i in range(FILE_COUNT):
         receive_single_file(client_socket, f"large-{i}.obj")
-        client_socket.sendall(b"File received")
-
         receive_single_file(client_socket, f"small-{i}.obj")
-        client_socket.sendall(b"File received")
 
     print(f"[INFO] Received all the files.")
     print(f"[INFO] Notifying the server...")
@@ -46,7 +45,6 @@ def request_files():
     client_socket.sendall(b"Files received")
     client_socket.close()
     print(f"[INFO] Connection closed.")
-
 
 
 if __name__ == "__main__":
