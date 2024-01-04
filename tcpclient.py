@@ -42,7 +42,7 @@ def request_files():
         receive_single_file(client_socket, f"small-{i}.obj")
 
     print(f"[INFO] Received all the files.")
-    print(f"[INFO] Server notified.")
+    print(f"[INFO] The server has been notified.\n")
 
     client_socket.sendall(b"Files received")
     client_socket.close()
