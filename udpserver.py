@@ -34,7 +34,8 @@ def process_data(data):
         process_small_object(data)
 
 def main():
-    server_address = ('localhost', 12345)
+    #server_address = ('localhost', 12345)
+    server_address = ('172.17.0.2', 12345)
     rdt_instance = RDT.ReliableDataTransfer()
     rdt_instance.rdt_initialize(server_address, bind=True, simulate_unreliability=True)
 

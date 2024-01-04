@@ -7,7 +7,8 @@ def create_object(size_in_bytes):
     return os.urandom(size_in_bytes)
 
 def main():
-    server_ip = '176.219.56.61'
+    #server_ip = '176.219.56.61'
+    server_ip = '172.17.0.2'
     server_port = 12345
     server_address = (server_ip, server_port)
 
