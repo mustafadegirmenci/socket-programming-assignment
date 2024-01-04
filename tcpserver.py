@@ -2,7 +2,7 @@
 
 import socket
 
-HOST = "127.0.0.1"  # Set to the IP address of the server eth0 if you do not use docker compose
+HOST = "172.17.0.3"  # Set to the IP address of the server eth0 if you do not use docker compose
 PORT = 8000  # Port to listen on (non-privileged ports are > 1023)
 
 # This implementation supports only one client
@@ -10,6 +10,7 @@ PORT = 8000  # Port to listen on (non-privileged ports are > 1023)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
     s.listen()
+    print(f'Listening from {HOST}:{PORT}')
     conn, addr = s.accept()
     with conn:
         print(f"Connected by {addr}")
