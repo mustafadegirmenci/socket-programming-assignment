@@ -1,6 +1,6 @@
 import socket
 
-SERVER_ADDR = "172.19.0.2"
+SERVER_ADDR = "172.17.0.2"
 SERVER_PORT = 8000  # socket server port number
 
 client_socket = socket.socket()  # instantiate
