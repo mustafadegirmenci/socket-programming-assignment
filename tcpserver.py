@@ -1,18 +1,18 @@
 import socket
 import threading
 
-SERVER_HOST = '172.17.0.2'
+SERVER_HOST = "172.17.0.2"
 SERVER_PORT = 8000
 FILE_COUNT = 10
-FOLDER_RELATIVE_PATH = '../root/objects'
+FOLDER_RELATIVE_PATH = "../root/objects"
 BACKLOG_LIMIT = 5
 
 
 def send_single_file(client_socket, file_name):
-    file_path = f'{FOLDER_RELATIVE_PATH}/{file_name}'
+    file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
     try:
         print(f"[INFO] Sending file: {file_name}...")
-        with open(file_path, 'rb') as file:
+        with open(file_path, "rb") as file:
             for data in file:
                 client_socket.sendall(data)
         client_socket.sendall(b"EOF")
@@ -28,10 +28,17 @@ def send_single_file(client_socket, file_name):
 
 def handle_single_client(client_socket, client_address):
     for i in range(FILE_COUNT):
-        send_single_file(client_socket, f'large-{i}.obj')
-        send_single_file(client_socket, f'small-{i}.obj')
+        send_single_file(client_socket, f"large-{i}.obj")
+        send_single_file(client_socket, f"small-{i}.obj")
 
     print(f"[INFO] All files sent.")
+    print(f"[INFO] Waiting for acknowledgment from the client...")
+
+    ack = client_socket.recv(1024)
+    if ack.decode() == "Files received":
+        print(f"[INFO] Client acknowledged receipt of all files.")
+    else:
+        print(f"[WARNING] Client acknowledgment not received as expected.")
 
     client_socket.close()
     print(f"[INFO] Closed connection with {client_address}.\n")

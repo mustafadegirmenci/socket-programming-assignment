@@ -9,10 +9,10 @@ FOLDER_RELATIVE_PATH = 'ReceivedObjects'
 
 def receive_single_file(server_socket, file_name):
     print(f"[INFO] Receiving file: {file_name}.")
-    file_path = f'{FOLDER_RELATIVE_PATH}/{file_name}'
+    file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
 
     try:
-        with open(file_path, 'wb') as file:
+        with open(file_path, "wb") as file:
             while True:
                 data = server_socket.recv(1024)
                 if data.endswith(b"EOF"):
@@ -34,12 +34,12 @@ def request_files():
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
 
     for i in range(FILE_COUNT):
-        large_file_name = f'large-{i}.obj'
-        receive_single_file(client_socket, large_file_name)
+        receive_single_file(client_socket, f"large-{i}.obj")
+        receive_single_file(client_socket, f"small-{i}.obj")
 
-        small_file_path = f'small-{i}.obj'
-        receive_single_file(client_socket, small_file_path)
-        print(f"[INFO] Received small file: {small_file_path}.")
+    client_socket.sendall(b"Files received")
+    print(f"[INFO] Received all the files.")
+    print(f"[INFO] Notifying the server...")
 
     client_socket.close()
     print(f"[INFO] Connection closed.")
