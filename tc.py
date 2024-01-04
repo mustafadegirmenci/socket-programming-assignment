@@ -9,11 +9,20 @@ def apply_packet_loss(loss_percentage, interface=DEFAULT_INTERFACE):
     subprocess.run(command, shell=True)
 
 
-def clear_tc_rules(interface=DEFAULT_INTERFACE):
+def clear_rules(interface=DEFAULT_INTERFACE):
     print(f"[INFO] Clearing TC rules...\n")
     command = f"tc qdisc del dev {interface} root"
     subprocess.run(command, shell=True)
 
 
+def show_active_rules():
+    print(f"[INFO] Showing TC rules...\n")
+    command = "tc qdisc show"
+    subprocess.run(command, shell=True)
+
+
 apply_packet_loss(20)
-clear_tc_rules()
+show_active_rules()
+
+clear_rules()
+show_active_rules()
