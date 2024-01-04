@@ -4,27 +4,41 @@ import threading
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
 BACKLOG_LIMIT = 5
+FOLDER_RELATIVE_PATH = '../root/objects'
+FILE_COUNT = 10
 
 
-def send_single_file(client_socket, file_path):
-    with open(file_path, 'rb') as file:
-        for data in file:
-            client_socket.sendall(data)
-    client_socket.sendall(b"EOF")
-    print(f"[INFO] Finished sending file: {file_path}")
+def send_single_file(client_socket, file_name):
+    file_path = f'{FOLDER_RELATIVE_PATH}/{file_name}'
+    try:
+        with open(file_path, 'rb') as file:
+            for data in file:
+                client_socket.sendall(data)
+        client_socket.sendall(b"EOF")
+        print(f"[INFO] Finished sending file: {file_path}")
+    except FileNotFoundError:
+        print(f"[ERROR] File not found: {file_path}")
+        client_socket.sendall(b"FILE_NOT_FOUND")
+    except Exception as e:
+        print(f"[ERROR] Exception occurred while sending file: {file_path}")
+        print(f"[ERROR] Exception details: {e}")
+        client_socket.sendall(b"ERROR_OCCURED")
 
 
-def handle_single_client(client_socket, addr):
-    file_to_send = '../root/objects/large-0.obj'
-    send_single_file(client_socket, file_to_send)
-    print(f"[INFO] Sending large file: {file_to_send}")
+def handle_single_client(client_socket, client_address):
+    for i in range(FILE_COUNT):
+        large_file_name = f'large-{i}.obj'
+        send_single_file(client_socket, large_file_name)
+        print(f"[INFO] Sending large file: {large_file_name}")
 
-    file_to_send = '../root/objects/small-0.obj'
-    send_single_file(client_socket, file_to_send)
-    print(f"[INFO] Sending small file: {file_to_send}")
+        small_file_name = f'small-{i}.obj'
+        send_single_file(client_socket, small_file_name)
+        print(f"[INFO] Sending small file: {small_file_name}")
+
+    print(f"[INFO] All files sent.")
 
     client_socket.close()
-    print(f"[INFO] Connection closed for {addr}")
+    print(f"[INFO] Closing connection with {client_address}")
 
 
 def respond_file_requests():
