@@ -14,7 +14,7 @@ def receive_file(rdt, file_name):
     try:
         with open(file_path, "wb") as file:
             while True:
-                data = rdt.rdt_receive()
+                data = rdt.rdt_recv()
                 if data.endswith(b"EOF"):
                     file.write(data[:-3])
                     break

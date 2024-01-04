@@ -26,7 +26,7 @@ def main():
     rdt.rdt_initialize((SERVER_HOST, SERVER_PORT), bind=True)
 
     while True:
-        data, client_address = rdt.rdt_receive()
+        data, client_address = rdt.rdt_recv()
         if data:
             file_name = data.decode()
             send_file_via_udp(rdt, client_address, file_name)
