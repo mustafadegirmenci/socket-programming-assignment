@@ -11,13 +11,13 @@ def apply_packet_loss(loss_percentage, interface=DEFAULT_INTERFACE):
 
 def apply_packet_delay_normal(delay, jitter, interface=DEFAULT_INTERFACE):
     print(f"[INFO] Setting packet delay to {delay}ms {jitter}ms with normal distribution...\n")
-    command = f"tc qdisc change dev {interface} root netem delay {delay}ms {jitter}ms distribution normal"
+    command = f"tc qdisc add dev {interface} root netem delay {delay}ms {jitter}ms distribution normal"
     subprocess.run(command, shell=True)
 
 
 def apply_packet_delay_uniform(delay, jitter, interface=DEFAULT_INTERFACE):
     print(f"[INFO] Setting packet delay to {delay}ms {jitter}ms with uniform distribution...\n")
-    command = f"tc qdisc change dev {interface} root netem delay {delay}ms {jitter}ms distribution uniform"
+    command = f"tc qdisc add dev {interface} root netem delay {delay}ms {jitter}ms distribution uniform"
     subprocess.run(command, shell=True)
 
 
@@ -36,10 +36,10 @@ def show_active_rules():
 apply_packet_loss(20)
 show_active_rules()
 
-apply_packet_delay_normal(100, 0)
+apply_packet_delay_normal(100, 20)
 show_active_rules()
 
-apply_packet_delay_uniform(100, 0)
+apply_packet_delay_uniform(100, 20)
 show_active_rules()
 
 clear_rules()
