@@ -17,7 +17,7 @@ def apply_packet_delay_normal(delay, jitter, interface=DEFAULT_INTERFACE):
 
 def apply_packet_delay_uniform(delay, jitter, interface=DEFAULT_INTERFACE):
     print(f"[INFO] Setting packet delay to {delay}ms {jitter}ms with uniform distribution...\n")
-    command = f"tc qdisc add dev {interface} root netem delay {delay}ms {jitter}ms distribution uniform"
+    command = f"tc qdisc add dev {interface} root netem delay {delay}ms {jitter}ms distribution"
     subprocess.run(command, shell=True)
 
 
