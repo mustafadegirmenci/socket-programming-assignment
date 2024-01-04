@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
     benchmark_results = run_benchmark(num_benchmarks)
-    average_results = calculate_average(benchmark_results, num_runs)
+    average_results = calculate_average(benchmark_results, num_benchmarks)
 
     print("[INFO] Average Benchmark Results:\n")
     print(f"No Rules: \t{average_results['no_rules']}\n")
