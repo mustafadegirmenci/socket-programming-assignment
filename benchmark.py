@@ -1,12 +1,13 @@
+import sys
+
 from matplotlib import pyplot as plt
 import tc
 import tcpclient
 
 PACKET_DELAY_JITTER = 5
-NUM_RUNS = 5  # Number of times to run the benchmark
 
 
-def run_benchmark():
+def run_benchmark(num_runs):
     results = {
         'no_rules': [],
         'packet_loss': {loss: [] for loss in [0, 5, 10, 15]},
@@ -15,7 +16,7 @@ def run_benchmark():
         'packet_delay_normal': []
     }
 
-    for _ in range(NUM_RUNS):
+    for _ in range(num_runs):
         tc.clear_rules()
 
         # No rules test
@@ -51,22 +52,28 @@ def run_benchmark():
     return results
 
 
-def calculate_average(results):
+def calculate_average(results, num_runs):
     avg_results = {
-        'no_rules': sum(results['no_rules']) / NUM_RUNS,
-        'packet_loss': {loss: sum(times) / NUM_RUNS for loss, times in results['packet_loss'].items()},
-        'packet_corruption': {corruption: sum(times) / NUM_RUNS for corruption, times in
+        'no_rules': sum(results['no_rules']) / num_runs,
+        'packet_loss': {loss: sum(times) / num_runs for loss, times in results['packet_loss'].items()},
+        'packet_corruption': {corruption: sum(times) / num_runs for corruption, times in
                               results['packet_corruption'].items()},
-        'packet_delay_uniform': sum(results['packet_delay_uniform']) / NUM_RUNS,
-        'packet_delay_normal': sum(results['packet_delay_normal']) / NUM_RUNS
+        'packet_delay_uniform': sum(results['packet_delay_uniform']) / num_runs,
+        'packet_delay_normal': sum(results['packet_delay_normal']) / num_runs
     }
     return avg_results
 
 
 if __name__ == "__main__":
-    print(f"[INFO] Starting benchmark...\n")
-    benchmark_results = run_benchmark()
-    average_results = calculate_average(benchmark_results)
+    if len(sys.argv) != 2:
+        print("[ERROR] Usage: python script_name.py <num_benchmarks>")
+        sys.exit(1)
+
+    num_benchmarks = int(sys.argv[1])
+
+    print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
+    benchmark_results = run_benchmark(num_benchmarks)
+    average_results = calculate_average(benchmark_results, num_runs)
 
     print("[INFO] Average Benchmark Results:\n")
     print(f"No Rules: \t{average_results['no_rules']}\n")
