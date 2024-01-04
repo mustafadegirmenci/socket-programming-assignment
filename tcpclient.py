@@ -2,17 +2,30 @@ import socket
 
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
+FILE_COUNT = 10
+FOLDER_RELATIVE_PATH = 'Received Objects'
 
 
-def receive_single_file(server_socket, file_path):
-    with open(file_path, 'wb') as file:
-        while True:
-            data = server_socket.recv(1024)
-            if data.endswith(b"EOF"):
-                file.write(data[:-3])
-                break
-            file.write(data)
-    print(f"[INFO] Finished receiving file: {file_path}")
+def receive_single_file(server_socket, file_name):
+    print(f"[INFO] Receiving file: {file_name}.")
+    file_path = f'{FOLDER_RELATIVE_PATH}/{file_name}'
+
+    try:
+        with open(file_path, 'wb') as file:
+            while True:
+                data = server_socket.recv(1024)
+                if data.endswith(b"EOF"):
+                    file.write(data[:-3])
+                    break
+                file.write(data)
+        print(f"[INFO] Finished receiving file: {file_path}\n")
+
+    except FileNotFoundError:
+        print(f"[ERROR] Could not write to file: {file_path}")
+
+    except Exception as e:
+        print(f"[ERROR] Exception occurred during file receive: {e}")
+
 
 
 def request_files():
@@ -20,13 +33,13 @@ def request_files():
     client_socket.connect((SERVER_HOST, SERVER_PORT))
     print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
 
-    large_file_path = 'received_large_file'
-    receive_single_file(client_socket, large_file_path)
-    print(f"[INFO] Received large file: {large_file_path}.")
+    for i in range(FILE_COUNT):
+        large_file_name = f'large-{i}.obj'
+        receive_single_file(client_socket, large_file_name)
 
-    small_file_path = 'received_small_file'
-    receive_single_file(client_socket, small_file_path)
-    print(f"[INFO] Received small file: {small_file_path}.")
+        small_file_path = f'small-{i}.obj'
+        receive_single_file(client_socket, small_file_path)
+        print(f"[INFO] Received small file: {small_file_path}.")
 
     client_socket.close()
     print(f"[INFO] Connection closed.")

@@ -11,29 +11,25 @@ FILE_COUNT = 10
 def send_single_file(client_socket, file_name):
     file_path = f'{FOLDER_RELATIVE_PATH}/{file_name}'
     try:
+        print(f"[INFO] Sending file: {file_name}...")
         with open(file_path, 'rb') as file:
             for data in file:
                 client_socket.sendall(data)
         client_socket.sendall(b"EOF")
-        print(f"[INFO] Finished sending file: {file_path}")
+        print(f"[INFO] Finished sending file: {file_path}\n")
+
     except FileNotFoundError:
         print(f"[ERROR] File not found: {file_path}")
-        client_socket.sendall(b"FILE_NOT_FOUND")
+
     except Exception as e:
         print(f"[ERROR] Exception occurred while sending file: {file_path}")
         print(f"[ERROR] Exception details: {e}")
-        client_socket.sendall(b"ERROR_OCCURED")
 
 
 def handle_single_client(client_socket, client_address):
     for i in range(FILE_COUNT):
-        large_file_name = f'large-{i}.obj'
-        send_single_file(client_socket, large_file_name)
-        print(f"[INFO] Sending large file: {large_file_name}")
-
-        small_file_name = f'small-{i}.obj'
-        send_single_file(client_socket, small_file_name)
-        print(f"[INFO] Sending small file: {small_file_name}")
+        send_single_file(client_socket, f'large-{i}.obj')
+        send_single_file(client_socket, f'small-{i}.obj')
 
     print(f"[INFO] All files sent.")
 
