@@ -1,54 +1,37 @@
-import RDT
-import sys
+import socket
+import os
+from RDT import ReliableDataTransfer
 
-# Include the provided functions here: process_large_object, process_small_object, process_data
-# ...
-def process_large_object(data, object_id):
-    filename = f"large_object_{object_id}.bin"
-    with open(filename, 'wb') as file:
-        file.write(data)
-    print(f"Large object saved to {filename}")
-    
-small_objects = []
-MAX_SMALL_OBJECTS = 10  # Number of small objects to accumulate before writing to file
+SERVER_HOST = "172.17.0.2"
+SERVER_PORT = 8000
+FOLDER_RELATIVE_PATH = "../root/objects"
 
-def process_small_object(data):
-    small_objects.append(data)
-    if len(small_objects) == MAX_SMALL_OBJECTS:
-        with open('small_objects.bin', 'ab') as file:
-            for obj in small_objects:
-                file.write(obj)
-        print(f"{MAX_SMALL_OBJECTS} small objects saved to small_objects.bin")
-        small_objects.clear()
-        
-        large_object_counter = 0
-
-def process_data(data):
-    global large_object_counter
-    large_object_size_threshold = 100 * 1024  # 100 KB
-
-    if len(data) > large_object_size_threshold:
-        large_object_counter += 1
-        process_large_object(data, large_object_counter)
-    else:
-        process_small_object(data)
+def send_file_via_udp(rdt, client_address, file_name):
+    file_path = os.path.join(FOLDER_RELATIVE_PATH, file_name)
+    try:
+        with open(file_path, "rb") as file:
+            while True:
+                data = file.read(4096)
+                if not data:
+                    break
+                rdt.rdt_send(data, client_address)
+            rdt.rdt_send(b"EOF", client_address)
+    except FileNotFoundError:
+        print(f"[ERROR] File not found: {file_path}")
+    except Exception as e:
+        print(f"[ERROR] {e}")
 
 def main():
-    #server_address = ('localhost', 12345)
-    server_address = ('172.17.0.2', 12345)
-    rdt_instance = RDT.ReliableDataTransfer()
-    rdt_instance.rdt_initialize(server_address, bind=True, simulate_unreliability=True)
+    rdt = ReliableDataTransfer()
+    rdt.rdt_initialize((SERVER_HOST, SERVER_PORT), bind=True)
 
-    try:
-        while True:
-            data, client_address = rdt_instance.rdt_recv()
-            print(f"Received data from {client_address}")
-            process_data(data)
+    while True:
+        data, client_address = rdt.rdt_receive()
+        if data:
+            file_name = data.decode()
+            send_file_via_udp(rdt, client_address, file_name)
 
-    except KeyboardInterrupt:
-        print("Server is shutting down.")
-    finally:
-        rdt_instance.rdt_config(pprint=True)
+    rdt.socket.close()
 
-
-main()
+if __name__ == "__main__":
+    main()

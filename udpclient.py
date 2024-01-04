@@ -1,38 +1,51 @@
-import RDT
 import os
-import sys
+import socket
+from RDT import ReliableDataTransfer
 
-def create_object(size_in_bytes):
-    """Create an object of the specified size."""
-    return os.urandom(size_in_bytes)
+SERVER_HOST = '172.17.0.2'
+SERVER_PORT = 8000
+FOLDER_RELATIVE_PATH = 'ReceivedObjects'
+FILE_REQUEST_LIMIT = 10
 
-def main():
-    #server_ip = '176.219.56.61'
-    server_ip = '172.17.0.2'
-    server_port = 12345
-    server_address = (server_ip, server_port)
-
-    rdt_instance = RDT.ReliableDataTransfer()
-    rdt_instance.rdt_initialize(server_address, simulate_unreliability=True)
+def receive_file(rdt, file_name):
+    print(f"[INFO] Receiving file: {file_name}.")
+    file_path = os.path.join(FOLDER_RELATIVE_PATH, file_name)
 
     try:
-        for i in range(20):  # Example: 10 large and 10 small objects
-            if i % 2 == 0:
-                object_size = 1024 * 1024  # 1 MB for large objects
-            else:
-                object_size = 1024  # 1 KB for small objects
+        with open(file_path, "wb") as file:
+            while True:
+                data = rdt.rdt_receive()
+                if data.endswith(b"EOF"):
+                    file.write(data[:-3])
+                    break
+                file.write(data)
+        print(f"[INFO] Finished receiving file: {file_path}")
+        rdt.rdt_send(b"File received")
 
-            data_object = create_object(object_size)
-            print(f"Sending object {i+1} of size {object_size} bytes...")
-            rdt_instance.rdt_send(data_object)
-
-        print("All objects have been sent to the server.")
+    except FileNotFoundError:
+        print(f"[ERROR] Could not write to file: {file_path}")
 
     except Exception as e:
-        print(f"An error occurred: {e}", file=sys.stderr)
+        print(f"[ERROR] Exception occurred during file receive: {e}")
 
-    finally:
-        rdt_instance.rdt_config(pprint=True)
+def request_files(file_count):
+    rdt = ReliableDataTransfer()
+    rdt.rdt_initialize((SERVER_HOST, SERVER_PORT), bind=False)
+
+    print(f"[INFO] Connected to server: {SERVER_HOST}:{SERVER_PORT}.")
+
+    for i in range(file_count):
+        rdt.rdt_send(f"large-{i}.obj".encode())
+        receive_file(rdt, f"large-{i}.obj")
+        rdt.rdt_send(f"small-{i}.obj".encode())
+        receive_file(rdt, f"small-{i}.obj")
+
+    print(f"[INFO] Received all {file_count} files.")
+    rdt.rdt_send(b"Files received")
+    rdt.socket.close()
+    print(f"[INFO] Connection closed.")
 
 if __name__ == "__main__":
-    main()
+    if not os.path.exists(FOLDER_RELATIVE_PATH):
+        os.makedirs(FOLDER_RELATIVE_PATH)
+    request_files(FILE_REQUEST_LIMIT)
