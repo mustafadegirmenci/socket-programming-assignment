@@ -1,6 +1,6 @@
 import subprocess
 
-command = "tc qdisc change dev eth2 root netem loss 5%"
+command = "tc qdisc add dev eth0 root netem delay 100ms 50ms"
 
 try:
     subprocess.run(command, shell=True, check=True, executable="/bin/bash")
