@@ -1,3 +1,5 @@
+from matplotlib import pyplot as plt
+
 import tc
 import tcpclient
 
@@ -45,3 +47,33 @@ if __name__ == "__main__":
 
     print(f"Delay (Uniform): \t{elapsed_time_packet_delay_uniform}\n")
     print(f"Delay (Normal): \t{elapsed_time_packet_delay_normal}\n")
+
+    print(f"[INFO] Plotting the benchmark results...\n")
+    plt.figure(figsize=(10, 6))
+
+    print(f"[INFO] Plotting Packet Loss results...")
+    plt.subplot(2, 2, 1)
+    plt.plot(list(elapsed_time_packet_loss.keys()), list(elapsed_time_packet_loss.values()), marker='o')
+    plt.title('Packet Loss')
+    plt.xlabel('Loss (%)')
+    plt.ylabel('Elapsed Time (s)')
+    plt.grid()
+
+    print(f"[INFO] Plotting Packet Corruption results...")
+    plt.subplot(2, 2, 2)
+    plt.plot(list(elapsed_time_packet_corruption.keys()), list(elapsed_time_packet_corruption.values()), marker='o')
+    plt.title('Packet Corruption')
+    plt.xlabel('Corruption (%)')
+    plt.ylabel('Elapsed Time (s)')
+    plt.grid()
+
+    print(f"[INFO] Plotting Packet Delay results...")
+    plt.subplot(2, 2, 3)
+    plt.bar(['No Rules', 'Uniform Delay', 'Normal Delay'],
+            [elapsed_time_no_rules, elapsed_time_packet_delay_uniform, elapsed_time_packet_delay_normal])
+    plt.title('Packet Delay')
+    plt.ylabel('Elapsed Time (s)')
+    plt.grid()
+
+    plt.tight_layout()
+    plt.show()
