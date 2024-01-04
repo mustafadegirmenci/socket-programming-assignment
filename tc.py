@@ -21,6 +21,12 @@ def apply_packet_delay_uniform(delay, jitter, interface=DEFAULT_INTERFACE):
     subprocess.run(command, shell=True)
 
 
+def apply_packet_corruption(corruption_percentage, interface=DEFAULT_INTERFACE):
+    print(f"[INFO] Setting packet corruption to {corruption_percentage}%...\n")
+    command = f"tc qdisc add dev {interface} root netem corrupt {corruption_percentage}%"
+    subprocess.run(command, shell=True)
+
+
 def clear_rules(interface=DEFAULT_INTERFACE):
     print(f"[INFO] Clearing TC rules...\n")
     command = f"tc qdisc del dev {interface} root"
@@ -40,6 +46,9 @@ apply_packet_delay_normal(100, 20)
 show_active_rules()
 
 apply_packet_delay_uniform(100, 20)
+show_active_rules()
+
+apply_packet_corruption(20)
 show_active_rules()
 
 clear_rules()
