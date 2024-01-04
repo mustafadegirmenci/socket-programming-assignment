@@ -13,9 +13,12 @@ def send_single_file(client_socket, file_name):
     try:
         print(f"[INFO] Sending file: {file_name}...")
         with open(file_path, "rb") as file:
-            for data in file:
-                client_socket.sendall(data)
-        client_socket.sendall(b"EOF")
+            while True:
+                data = file.read(4096)
+                if not data:
+                    break
+                client_socket.send(data)
+        client_socket.send(b"EOF")
         print(f"[INFO] Finished sending file: {file_path}\n")
 
     except FileNotFoundError:
