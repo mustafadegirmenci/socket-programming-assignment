@@ -47,7 +47,7 @@ def request_files():
 
 if __name__ == "__main__":
     if not os.path.exists(FOLDER_RELATIVE_PATH):
-        print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...")
+        print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
         os.mkdir(FOLDER_RELATIVE_PATH)
 
     request_files()

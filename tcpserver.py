@@ -3,9 +3,9 @@ import threading
 
 SERVER_HOST = '172.17.0.2'
 SERVER_PORT = 8000
-BACKLOG_LIMIT = 5
-FOLDER_RELATIVE_PATH = '../root/objects'
 FILE_COUNT = 10
+FOLDER_RELATIVE_PATH = '../root/objects'
+BACKLOG_LIMIT = 5
 
 
 def send_single_file(client_socket, file_name):
@@ -34,22 +34,21 @@ def handle_single_client(client_socket, client_address):
     print(f"[INFO] All files sent.")
 
     client_socket.close()
-    print(f"[INFO] Closing connection with {client_address}")
+    print(f"[INFO] Closed connection with {client_address}.\n")
 
 
 def respond_file_requests():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((SERVER_HOST, SERVER_PORT))
     server_socket.listen(BACKLOG_LIMIT)
-    print(f"[INFO] Server listening on {SERVER_HOST}:{SERVER_PORT}.")
+    print(f"[INFO] Server listening on {SERVER_HOST}:{SERVER_PORT}\n")
 
     while True:
         client_socket, client_address = server_socket.accept()
         thread = threading.Thread(target=handle_single_client, args=(client_socket, client_address))
-        print(f"[INFO] Client connected. {client_address}")
+        print(f"[INFO] Incoming connection from: {client_address}\n")
         thread.start()
 
 
 if __name__ == "__main__":
     respond_file_requests()
-    print(f"[INFO] Server started.")
