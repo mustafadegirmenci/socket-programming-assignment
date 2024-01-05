@@ -16,18 +16,21 @@ def receive_single_file(udp_socket, file_name):
     try:
         with open(file_path, "wb") as file:
             i = 0
+            received_data = b""
             while True:
                 print(f"Received {i} times.")
                 i += 1
                 data, _ = udp_socket.recvfrom(BUFFER_SIZE)
                 if data.endswith(b"EOF"):
-                    file.write(data[:-3])
+                    received_data += data[:-3]
                     break
-                file.write(data)
-        print(f"[INFO] Finished receiving file: {file_path}")
+                received_data += data
 
-        udp_socket.sendto(b"ACK", (SERVER_HOST, SERVER_PORT))
-        print(f"[INFO] The server has been notified.\n")
+            file.write(received_data)
+            print(f"[INFO] Finished receiving file: {file_path}")
+
+            udp_socket.sendto(b"ACK", (_, SERVER_PORT))
+            print(f"[INFO] The server has been notified.\n")
 
     except FileNotFoundError:
         print(f"[ERROR] Could not write to file: {file_path}")
