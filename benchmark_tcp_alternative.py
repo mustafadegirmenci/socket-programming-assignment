@@ -30,7 +30,6 @@ def run_benchmark_packet_loss(num_runs, loss_list):
         for i in range(num_runs):
             try:
                 elapsed_time = tcpclient.request_files_and_measure_time(10)
-                print(f"elapsed time: {elapsed_time}")
                 list_results[loss].append(elapsed_time)
             except:
                 continue
@@ -40,7 +39,6 @@ def run_benchmark_packet_loss(num_runs, loss_list):
         val = list_results[key]
         results[key] = sum(val) / len(val)
 
-    print(results)
     plot_with_confidence_intervals(results, f'TCP Packet Loss - Alternative', 'Loss (%)', 'Average Elapsed Time (s)')
 
 
@@ -50,6 +48,7 @@ def run_benchmark_packet_corruption(num_runs, corruption_list):
     for corruption in corruption_list:
         tc.clear_rules()
         tc.apply_packet_corruption(corruption)
+        list_results[corruption] = []
         for i in range(num_runs):
             try:
                 elapsed_time = tcpclient.request_files_and_measure_time(10)
@@ -61,27 +60,29 @@ def run_benchmark_packet_corruption(num_runs, corruption_list):
     for key in list_results.keys():
         val = list_results[key]
         results[key] = sum(val) / len(val)
-    plot_with_confidence_intervals(results, f'TCP Packet Corruption - Alternative', 'Corruption (%)', 'Average Elapsed Time (s)')
+    plot_with_confidence_intervals(results, f'TCP Corruption - Alternative', 'Corruption (%)', 'Average Elapsed Time (s)')
 
 
-def run_benchmark_packet_duplication(num_runs, duplication):
+def run_benchmark_packet_duplication(num_runs, duplication_list):
     list_results = {}
 
-    for i in range(num_runs):
+    for duplication in duplication_list:
         tc.clear_rules()
         tc.apply_packet_duplication(duplication)
-        try:
-            elapsed_time = tcpclient.request_files_and_measure_time(10)
-            list_results[i].append(elapsed_time)
-        except:
-            continue
+        list_results[duplication] = []
+        for i in range(num_runs):
+            try:
+                elapsed_time = tcpclient.request_files_and_measure_time(10)
+                list_results[i].append(elapsed_time)
+            except:
+                continue
 
     results = {}
     for key in list_results.keys():
         val = list_results[key]
         results[key] = sum(val) / len(val)
 
-    plot_with_confidence_intervals(results, f'TCP Duplication {duplication}% - Alternative', 'Duplication (%)',
+    plot_with_confidence_intervals(results, f'TCP Duplication - Alternative', 'Duplication (%)',
                                    'Average Elapsed Time (s)')
 
 
