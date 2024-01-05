@@ -4,9 +4,6 @@ import socket
 
 import checksum
 
-WAIT_FOR_CALL = 0
-WAIT_FOR_ACK_OR_NAK = 1
-
 SERVER_IP = "172.17.0.2"
 SERVER_PORT = 8000
 BUFFER_SIZE = 1024
@@ -62,13 +59,13 @@ def send_single_file(file_name, client_address):
 
 
 if __name__ == "__main__":
-    current_state = WAIT_FOR_CALL
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((SERVER_IP, SERVER_PORT))
+    while True:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((SERVER_IP, SERVER_PORT))
 
-    print(f"[INFO] Waiting for file request...")
-    data, client_address = rdt_rcv()
+        print(f"[INFO] Waiting for file request...")
+        data, client_address = rdt_rcv()
 
-    for file_index in range(FILE_COUNT):
-        send_single_file(f"large-{file_index}.obj", client_address)
-        send_single_file(f"small-{file_index}.obj", client_address)
+        for file_index in range(FILE_COUNT):
+            send_single_file(f"large-{file_index}.obj", client_address)
+            send_single_file(f"small-{file_index}.obj", client_address)
