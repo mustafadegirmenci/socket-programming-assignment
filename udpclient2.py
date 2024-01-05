@@ -8,7 +8,7 @@ SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = "ReceivedObjects"
-TIMEOUT = 1
+TIMEOUT = 0.2
 
 
 def rdt_send(sock, message: str, address: (str, int)):
@@ -40,33 +40,33 @@ def receive_single_file(sock, file_name):
             while True:
                 try:
                     checksum_and_data, _ = rdt_rcv(sock)
-                    if checksum.validate_checksum(checksum_and_data):
-                        file.write(checksum.extract_data(checksum_and_data))
-
-                        while True:
-                            try:
-                                print(f"[INFO] Sending ACK{packet_index}")
-                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                                print(f"[INFO] Sent ACK{packet_index} successfully")
-                                packet_index += 1
-                                break
-                            except socket.timeout:
-                                print(f"[INFO] Timeout occured while sending ACK{packet_index}")
-                                packet_index -= 1
-                                continue
-                    else:
-                        while True:
-                            try:
-                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                                break
-                            except socket.timeout:
-                                continue
+                    packet_valid = checksum.validate_checksum(checksum_and_data)
+                    file.write(checksum.extract_data(checksum_and_data))
                     break
                 except socket.timeout:
-                    print(f"[INFO] Sending ACK{packet_index - 1}")
-                    rdt_send(sock, f"ACK{packet_index - 1}", (SERVER_IP, SERVER_PORT))
-                    print(f"[INFO] Sent ACK{packet_index - 1} successfully")
                     continue
+
+            if packet_valid:
+                file.write(checksum.extract_data(checksum_and_data))
+
+                while True:
+                    try:
+                        print(f"[INFO] Sending ACK{packet_index}")
+                        rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                        print(f"[INFO] Sent ACK{packet_index} successfully")
+                        packet_index += 1
+                        break
+                    except socket.timeout:
+                        print(f"[INFO] Timeout occured while sending ACK{packet_index}")
+                        packet_index -= 1
+                        continue
+            else:
+                while True:
+                    try:
+                        rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                        break
+                    except socket.timeout:
+                        continue
 
     print(f"[INFO] Received file {file_name}.\n")
 

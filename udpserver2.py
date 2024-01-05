@@ -9,7 +9,7 @@ SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = "../root/objects"
-TIMEOUT = 1
+TIMEOUT = 0.2
 
 
 def rdt_send(message: bytes, address: (str, int), with_checksum=True):
