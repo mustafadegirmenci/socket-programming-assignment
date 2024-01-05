@@ -26,6 +26,7 @@ def run_benchmark_packet_loss(num_runs, loss_list):
     for loss in loss_list:
         tc.clear_rules()
         tc.apply_packet_loss(loss)
+        list_results[loss] = []
         for i in range(num_runs):
             try:
                 elapsed_time = tcpclient.request_files_and_measure_time(10)
