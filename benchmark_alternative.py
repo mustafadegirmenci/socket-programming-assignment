@@ -20,20 +20,6 @@ def plot_with_confidence_intervals(results_dict, title, xlabel, ylabel):
     plt.savefig(f"experiment_{title}")
 
 
-def run_benchmark_no_rules(num_runs):
-    results = {}
-
-    for i in range(num_runs):
-        tc.clear_rules()
-        try:
-            elapsed_time_no_rules = tcpclient.request_files_and_measure_time(10)
-            results[i] = elapsed_time_no_rules
-        except:
-            continue
-
-    plot_with_confidence_intervals(results, 'TCP No Rules', 'Run Number', 'Average Elapsed Time (s)')
-
-
 def run_benchmark_packet_loss(num_runs, loss_percentage):
     results = {}
 
@@ -50,63 +36,40 @@ def run_benchmark_packet_loss(num_runs, loss_percentage):
 
 
 def run_benchmark_packet_corruption(num_runs, corruption):
-    results = {}
+    list_results = {}
 
     for i in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_corruption(corruption)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i] = elapsed_time
+            list_results[i].append(elapsed_time)
         except:
             continue
 
+    results = {}
+    for key in list_results.keys():
+        val = list_results[key]
+        results[key] = sum(val) / len(val)
     plot_with_confidence_intervals(results, f'TCP Packet Corruption {corruption}%', 'Run Number', 'Average Elapsed Time (s)')
 
 
-def run_benchmark_packet_delay_uniform(num_runs):
-    results = {}
-
-    for i in range(num_runs):
-        tc.clear_rules()
-        tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
-        try:
-            elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i] = elapsed_time
-        except:
-            continue
-
-    plot_with_confidence_intervals(results, f'TCP Delay (Uniform) {100}ms', 'Run Number',
-                                   'Average Elapsed Time (s)')
-
-
-def run_benchmark_packet_delay_normal(num_runs):
-    results = {}
-
-    for i in range(num_runs):
-        tc.clear_rules()
-        tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
-        try:
-            elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i] = elapsed_time
-        except:
-            continue
-
-    plot_with_confidence_intervals(results, f'TCP Delay (Normal) {100}ms', 'Run Number',
-                                   'Average Elapsed Time (s)')
-
-
 def run_benchmark_packet_duplication(num_runs, duplication):
-    results = {}
+    list_results = {}
 
     for i in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_duplication(duplication)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i] = elapsed_time
+            list_results[i].append(elapsed_time)
         except:
             continue
+
+    results = {}
+    for key in list_results.keys():
+        val = list_results[key]
+        results[key] = sum(val) / len(val)
 
     plot_with_confidence_intervals(results, f'TCP Duplication {duplication}%', 'Run Number',
                                    'Average Elapsed Time (s)')
@@ -122,21 +85,13 @@ if __name__ == "__main__":
 
     print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''} for {experiment_type}...\n")
 
-    if experiment_type == "norules":
-        run_benchmark_no_rules(num_benchmarks)
-
-    elif experiment_type == "loss":
+    if experiment_type == "loss":
         run_benchmark_packet_loss(num_benchmarks, [0, 5, 10, 15])
 
     elif experiment_type == "corruption":
         run_benchmark_packet_corruption(num_benchmarks, [0, 5, 10])
 
-
-    elif experiment_type == "delay_normal":
-        run_benchmark_packet_delay_normal(num_benchmarks)
-
     elif experiment_type == "duplication":
-        for duplication in [0, 5, 10, 15]:
-            run_benchmark_packet_duplication(num_benchmarks, duplication)
+        run_benchmark_packet_duplication(num_benchmarks, [0, 5, 10, 15])
     else:
         print("[ERROR] Invalid experiment type.")
