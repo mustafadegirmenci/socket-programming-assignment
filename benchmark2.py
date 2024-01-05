@@ -12,10 +12,19 @@ def run_benchmark_no_rules(num_runs):
 
     for _ in range(num_runs):
         tc.clear_rules()
-        elapsed_time_no_rules = udpclient2.receive_all_files()
-        results.append(elapsed_time_no_rules)
+        try:
+            elapsed_time_no_rules = udpclient2.receive_all_files()
+            results.append(elapsed_time_no_rules)
+        except:
+            continue
 
-    return results
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, num_runs + 1), results, marker='o', linestyle='-')
+    plt.xlabel('Run Number')
+    plt.ylabel('Elapsed Time')
+    plt.title('UDP No Rules')
+    plt.grid(True)
+    plt.savefig("udp_norules")
 
 
 def run_benchmark_packet_loss(num_runs, losses):
@@ -25,10 +34,20 @@ def run_benchmark_packet_loss(num_runs, losses):
         for _ in range(num_runs):
             tc.clear_rules()
             tc.apply_packet_loss(loss)
-            elapsed_time = udpclient2.receive_all_files()
-            results[loss].append(elapsed_time)
+            try:
+                elapsed_time = udpclient2.receive_all_files()
+                results[loss].append(elapsed_time)
+            except:
+                continue
 
-    return results
+    plt.figure(figsize=(6, 4))
+    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
+    plt.title('UDP Packet Loss')
+    plt.xlabel('Loss (%)')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig("udp_loss")
 
 
 def run_benchmark_packet_corruption(num_runs, corruptions):
@@ -38,10 +57,20 @@ def run_benchmark_packet_corruption(num_runs, corruptions):
         for _ in range(num_runs):
             tc.clear_rules()
             tc.apply_packet_corruption(corruption)
-            elapsed_time = udpclient2.receive_all_files()
-            results[corruption].append(elapsed_time)
+            try:
+                elapsed_time = udpclient2.receive_all_files()
+                results[corruption].append(elapsed_time)
+            except:
+                continue
 
-    return results
+    plt.figure(figsize=(6, 4))
+    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
+    plt.title('UDP Packet Corruption')
+    plt.xlabel('Corruption (%)')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig("udp_corruption")
 
 
 def run_benchmark_packet_delay_uniform(num_runs):
@@ -50,10 +79,19 @@ def run_benchmark_packet_delay_uniform(num_runs):
     for _ in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
-        elapsed_time = udpclient2.receive_all_files()
-        results.append(elapsed_time)
+        try:
+            elapsed_time = udpclient2.receive_all_files()
+            results.append(elapsed_time)
+        except:
+            continue
 
-    return results
+    plt.figure(figsize=(6, 4))
+    plt.bar(['Packet Delay (Uniform)'], [sum(results) / len(results)])
+    plt.title('UDP Packet Delay (Uniform)')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig("udp_delay_uniform")
 
 
 def run_benchmark_packet_delay_normal(num_runs):
@@ -62,10 +100,19 @@ def run_benchmark_packet_delay_normal(num_runs):
     for _ in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
-        elapsed_time = udpclient2.receive_all_files()
-        results.append(elapsed_time)
+        try:
+            elapsed_time = udpclient2.receive_all_files()
+            results.append(elapsed_time)
+        except:
+            continue
 
-    return results
+    plt.figure(figsize=(6, 4))
+    plt.bar(['Packet Delay (Normal)'], [sum(results) / len(results)])
+    plt.title('UDP Packet Delay (Normal)')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig("udp_delay_normal")
 
 
 def run_benchmark_packet_duplication(num_runs, duplications):
@@ -75,88 +122,46 @@ def run_benchmark_packet_duplication(num_runs, duplications):
         for _ in range(num_runs):
             tc.clear_rules()
             tc.apply_packet_duplication(duplication)
-            elapsed_time = udpclient2.receive_all_files()
-            results[duplication].append(elapsed_time)
+            try:
+                elapsed_time = udpclient2.receive_all_files()
+                results[duplication].append(elapsed_time)
+            except:
+                continue
 
-    return results
-
-
-def plot_packet_loss(results):
     plt.figure(figsize=(6, 4))
     plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Loss')
-    plt.xlabel('Loss (%)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_packet_corruption(results):
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Corruption')
-    plt.xlabel('Corruption (%)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_packet_delay_uniform(results):
-    plt.figure(figsize=(6, 4))
-    plt.bar(['Packet Delay (Uniform)'], [sum(results) / len(results)])
-    plt.title('Packet Delay (Uniform)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_packet_delay_normal(results):
-    plt.figure(figsize=(6, 4))
-    plt.bar(['Packet Delay (Normal)'], [sum(results) / len(results)])
-    plt.title('Packet Delay (Normal)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_packet_duplication(results):
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Duplication')
+    plt.title('UDP Packet Duplication')
     plt.xlabel('Duplication (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
     plt.tight_layout()
-    plt.show()
+    plt.savefig("udp_duplication")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("[ERROR] Usage: python script_name.py <num_benchmarks>")
+    if len(sys.argv) != 3:
+        print("[ERROR] Usage: python script_name.py <num_benchmarks> <experiment_type>")
         sys.exit(1)
 
     num_benchmarks = int(sys.argv[1])
+    experiment_type = str(sys.argv[2])
 
-    print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
+    print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''} for {experiment_type}...\n")
 
-    losses_to_test = [0, 5, 10, 15]
-    packet_loss_results = run_benchmark_packet_loss(num_benchmarks, losses_to_test)
-    plot_packet_loss(packet_loss_results)
-
-    corruptions_to_test = [0, 5, 10]
-    packet_corruption_results = run_benchmark_packet_corruption(num_benchmarks, corruptions_to_test)
-    plot_packet_corruption(packet_corruption_results)
-
-    packet_delay_uniform_results = run_benchmark_packet_delay_uniform(num_benchmarks)
-    plot_packet_delay_uniform(packet_delay_uniform_results)
-
-    packet_delay_normal_results = run_benchmark_packet_delay_normal(num_benchmarks)
-    plot_packet_delay_normal(packet_delay_normal_results)
-
-    duplications_to_test = [0, 5, 10, 15]
-    packet_duplication_results = run_benchmark_packet_duplication(num_benchmarks, duplications_to_test)
-    plot_packet_duplication(packet_duplication_results)
+    if experiment_type == "norules":
+        run_benchmark_no_rules(num_benchmarks)
+    elif experiment_type == "loss":
+        losses_to_test = [0, 5, 10, 15]
+        run_benchmark_packet_loss(num_benchmarks, losses_to_test)
+    elif experiment_type == "corruption":
+        corruptions_to_test = [0, 5, 10]
+        run_benchmark_packet_corruption(num_benchmarks, corruptions_to_test)
+    elif experiment_type == "delay_uniform":
+        run_benchmark_packet_delay_uniform(num_benchmarks)
+    elif experiment_type == "delay_normal":
+        run_benchmark_packet_delay_normal(num_benchmarks)
+    elif experiment_type == "duplication":
+        duplications_to_test = [0, 5, 10, 15]
+        run_benchmark_packet_duplication(num_benchmarks, duplications_to_test)
+    else:
+        print("[ERROR] Invalid experiment type.")

@@ -1,10 +1,26 @@
 import sys
 
+import numpy as np
 from matplotlib import pyplot as plt
 import tc
 import tcpclient
 
 PACKET_DELAY_JITTER = 5
+
+
+def plot_with_confidence_intervals(x_values, y_values_dict, title, xlabel, ylabel):
+    means = [np.mean(times) for times in y_values_dict.values()]
+    std_err = [1.96 * np.std(times) / np.sqrt(len(times)) for times in y_values_dict.values()]  # 1.96 is the z-score for 95% confidence interval
+
+    plt.figure(figsize=(6, 4))
+    plt.errorbar(x_values, means, yerr=std_err, fmt='o', capsize=5)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid()
+    plt.tight_layout()
+
+    plt.savefig(f"tcp_{title.lower().replace(' ', '_')}")
 
 
 def run_benchmark_no_rules(num_runs):
@@ -40,14 +56,7 @@ def run_benchmark_packet_loss(num_runs, losses):
             except:
                 continue
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('TCP Packet Loss')
-    plt.xlabel('Loss (%)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_loss")
+    plot_with_confidence_intervals(list(results.keys()), results, 'TCP Packet Loss', 'Loss (%)', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_corruption(num_runs, corruptions):
@@ -63,56 +72,39 @@ def run_benchmark_packet_corruption(num_runs, corruptions):
             except:
                 continue
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('TCP Packet Corruption')
-    plt.xlabel('Corruption (%)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_corruption")
+    plot_with_confidence_intervals(list(results.keys()), results, 'TCP Packet Corruption', 'Corruption (%)', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_delay_uniform(num_runs):
-    results = []
+    results = {}
 
-    for _ in range(num_runs):
+    for i in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results.append(elapsed_time)
+            results[i] = elapsed_time
         except:
             continue
 
-    plt.figure(figsize=(6, 4))
-    plt.bar(['Packet Delay (Uniform)'], [sum(results) / len(results)])
-    plt.title('TCP Packet Delay (Uniform)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_delay_uniform")
+    plot_with_confidence_intervals(list(results.keys()), results, 'TCP Delay (Uniform)', 'Delay (%)',
+                                   'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_delay_normal(num_runs):
-    results = []
+    results = {}
 
-    for _ in range(num_runs):
+    for i in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results.append(elapsed_time)
+            results[i] = elapsed_time
         except:
             continue
 
-    plt.figure(figsize=(6, 4))
-    plt.bar(['Packet Delay (Normal)'], [sum(results) / len(results)])
-    plt.title('TCP Packet Delay (Normal)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_delay_normal")
+    plot_with_confidence_intervals(list(results.keys()), results, 'TCP Delay (Normal)', 'Delay (%)',
+                                   'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_duplication(num_runs, duplications):
@@ -128,14 +120,8 @@ def run_benchmark_packet_duplication(num_runs, duplications):
             except:
                 continue
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('TCP Packet Duplication')
-    plt.xlabel('Duplication (%)')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_duplication")
+    plot_with_confidence_intervals(list(results.keys()), results, 'TCP Duplication', 'Duplication (%)',
+                                   'Average Elapsed Time (s)')
 
 
 if __name__ == "__main__":
