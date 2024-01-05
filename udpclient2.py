@@ -41,6 +41,7 @@ def receive_single_file(sock, file_name):
                     print(f"[INFO] Sending ACK{packet_index}.")
                     rdt_send(sock, f"ACK{packet_index} for packet {packet_index}", (SERVER_IP, SERVER_PORT))
                     ack_timeout = False
+                    print(f"[INFO]      Sent ACK{packet_index}.")
                     packet_index += 1
                 else:
                     rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
