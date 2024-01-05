@@ -3,7 +3,7 @@ import time
 
 import checksum
 
-SERVER_IP = "172.17.0.3"
+SERVER_IP = "172.17.0.2"
 SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
