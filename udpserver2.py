@@ -52,7 +52,8 @@ def respond_file_requests():
     while True:
         client_request, client_address = udp_socket.recvfrom(BUFFER_SIZE)
         print(f"[INFO] Incoming request from: {client_address}")
-        handle_single_client(client_address, client_request, udp_socket)
+        thread = threading.Thread(target=handle_single_client, args=(client_address, client_request, udp_socket))
+        thread.start()
 
 
 if __name__ == "__main__":
