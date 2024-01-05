@@ -14,11 +14,6 @@ def plot_with_confidence_intervals(results_dict, title, xlabel, ylabel):
 
     plt.figure(figsize=(10, 6))
     plt.plot(x_values, y_values)
-
-    y_mean = np.mean(y_values)
-
-    plt.axhline(y=y_mean, color='r', linestyle='--')
-
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
