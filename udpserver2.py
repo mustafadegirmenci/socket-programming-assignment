@@ -46,14 +46,14 @@ def send_single_file(file_name, client_address):
         packet_timeout = False
         while packet_index < packet_count:
             try:
-                print(f"[INFO] Sending packet{packet_index} of file {file_name}...")
                 if not packet_timeout:
                     packet = file.read(BUFFER_SIZE - checksum.CHECKSUM_LENGTH)
                 rdt_send(packet, client_address)
+                print(f"[INFO] Sent packet{packet_index} of file {file_name}...")
                 packet_timeout = False
             except socket.timeout:
                 packet_timeout = True
-                print(f"[INFO] Timeout occurred, resending packet {packet_index}...")
+                print(f"[INFO] Timeout occurred, while sending packet {packet_index}...")
                 continue
 
             print(f"[INFO] Waiting for ACK{packet_index}...")
