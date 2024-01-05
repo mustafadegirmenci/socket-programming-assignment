@@ -45,6 +45,7 @@ def receive_single_file(sock, file_name):
                 file.write(checksum.extract_data(checksum_and_data))
 
                 while True:
+                    sock.settimeout(TIMEOUT)
                     try:
                         print(f"[INFO] Sending ACK{packet_index}")
                         rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
