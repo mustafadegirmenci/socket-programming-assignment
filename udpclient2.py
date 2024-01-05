@@ -43,6 +43,15 @@ def receive_single_file(sock, file_name):
                     packet_valid = checksum.validate_checksum(checksum_and_data)
                     break
                 except socket.timeout:
+                    while True:
+                        try:
+                            print(f"[INFO] Sending ACK{packet_index - 1}")
+                            rdt_send(sock, f"ACK{packet_index - 1}", (SERVER_IP, SERVER_PORT))
+                            print(f"[INFO] Sent ACK{packet_index - 1} successfully")
+                            break
+                        except socket.timeout:
+                            print(f"[INFO] Timeout occured while sending ACK{packet_index}")
+                            continue
                     continue
 
             if packet_valid:
