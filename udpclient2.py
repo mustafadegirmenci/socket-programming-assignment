@@ -21,10 +21,11 @@ def rdt_rcv(sock) -> (bytes, (str, int)):  # data, (ip, port)
 
 
 def receive_single_file(sock, file_name):
-    sock.settimeout(TIMEOUT)
+    sock.settimeout(None)
 
     checksum_and_data, _ = rdt_rcv(sock)
 
+    sock.settimeout(TIMEOUT)
     try:
         packet_count = int(checksum_and_data.decode().split(":")[1])
         print(checksum_and_data.decode())
