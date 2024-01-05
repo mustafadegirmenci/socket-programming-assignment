@@ -20,3 +20,9 @@ def validate_checksum(checksum_and_data: bytes) -> bool:
     expected_checksum = calculate_checksum(message)
 
     return checksum == expected_checksum
+
+
+def extract_data(checksum_and_data: bytes) -> bytes:
+    message = checksum_and_data[CHECKSUM_LENGTH:]
+
+    return message
