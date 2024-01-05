@@ -9,24 +9,19 @@ PACKET_DELAY_JITTER = 5
 
 
 def plot_with_confidence_intervals(x_values, y_values_dict, title, xlabel, ylabel):
-    means = [np.mean(times) for times in y_values_dict.values()]
+    means = [np.mean(y_values) for y_values in y_values_dict.values()]
+    std_errs = [1.96 * np.std(y_values) / np.sqrt(len(y_values)) for y_values in y_values_dict.values()]
 
-    std_errs = []
-    for times in y_values_dict.values():
-        if isinstance(times, float):
-            std_errs.append(0)
-        else:
-            std_errs.append(1.96 * np.std(times) / np.sqrt(len(times)))
-
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(8, 6))
     plt.errorbar(x_values, means, yerr=std_errs, fmt='o', capsize=5)
-    plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.grid()
-    plt.tight_layout()
+    plt.title(title)
+    plt.grid(True)
+    plt.xticks(x_values)
+    plt.savefig(title.lower().replace(" ", "_"))
 
-    plt.savefig(f"tcp_{title.lower().replace(' ', '_')}")
+    plt.savefig(f"experiment_{title}")
 
 
 def run_benchmark_no_rules(num_runs):
