@@ -64,7 +64,6 @@ def send_single_file(file_name, client_address):
                     continue
 
             try:
-                print(f"[INFO] Waiting for ACK{packet_index}...")
                 data, client_address = sock.recvfrom(BUFFER_SIZE)
                 if data.decode() == f"ACK{packet_index}":
                     packet_index += 1

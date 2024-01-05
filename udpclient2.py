@@ -52,8 +52,7 @@ def receive_single_file(sock, file_name):
                     rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
             except socket.timeout:
                 ack_timeout = True
-                print(f"[INFO] Packet not received within {TIMEOUT} seconds. Resending the ACK.")
-                packet_index -= 1
+                print(f"[INFO] ACK{packet_index} could not be sent in {TIMEOUT} seconds. Resending the ACK.")
                 continue
 
     print(f"[INFO] Received file {file_name}.\n")
