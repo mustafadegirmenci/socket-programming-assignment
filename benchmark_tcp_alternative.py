@@ -37,12 +37,15 @@ def run_benchmark_packet_loss(num_runs, loss_list):
     for key in list_results.keys():
         val = list_results[key]
         results[key] = sum(val) / len(val)
+
+    print(results)
     plot_with_confidence_intervals(results, f'TCP Packet Loss - Alternative', 'Loss (%)', 'Average Elapsed Time (s)')
 
 
-def run_benchmark_packet_corruption(num_runs, corruption):
+def run_benchmark_packet_corruption(num_runs, corruption_list):
     list_results = {}
 
+    for corruption in corruption_list
     for i in range(num_runs):
         tc.clear_rules()
         tc.apply_packet_corruption(corruption)
