@@ -8,7 +8,7 @@ SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = "ReceivedObjects"
-TIMEOUT = 0.2
+TIMEOUT = 0.5
 
 
 def rdt_send(sock, message: str, address: (str, int)):
