@@ -9,6 +9,7 @@ SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = "../root/objects"
+TIMEOUT = 0.5
 
 
 def rdt_send(message: bytes, address: (str, int), with_checksum=True):
@@ -47,6 +48,7 @@ def send_single_file(file_name, client_address):
             rdt_send(packet, client_address)
 
             print(f"[INFO] Waiting for ACK{packet_index}...")
+            sock.settimeout(TIMEOUT)
             try:
                 data, client_address = sock.recvfrom(BUFFER_SIZE)
                 if data.decode() == f"ACK{packet_index}":
