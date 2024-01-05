@@ -52,7 +52,12 @@ def receive_single_file(sock, file_name):
                     except socket.timeout:
                         continue
             else:
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                while True:
+                    try:
+                        rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                        break
+                    except socket.timeout:
+                        continue
 
     print(f"[INFO] Received file {file_name}.\n")
 
