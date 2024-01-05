@@ -51,6 +51,7 @@ def receive_single_file(sock, file_name):
                         packet_index += 1
                         break
                     except socket.timeout:
+                        print(f"[INFO] Timeout occured while sending ACK{packet_index}")
                         packet_index -= 1
                         continue
             else:
