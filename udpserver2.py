@@ -18,9 +18,9 @@ def send_single_file(client_address, file_name, udp_socket):
                 data = file.read(BUFFER_SIZE)
         udp_socket.sendto(b"EOF", client_address)
         print(f"[INFO] Finished sending file: {file_name} to {client_address}")
-        print(f"[INFO] Waiting for acknowledgment...")
 
-        ack = udp_socket.recv(1024)
+        print(f"[INFO] Waiting for acknowledgment...")
+        ack = udp_socket.recv(BUFFER_SIZE)
         if ack.decode() == "ACK":
             print(f"[INFO] Acknowledgment for {file_name} received.\n")
         else:
