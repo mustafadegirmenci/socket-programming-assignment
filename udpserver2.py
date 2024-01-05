@@ -42,10 +42,17 @@ def send_single_file(file_name, client_address):
         rdt_send(f"Packet Count:{packet_count}".encode(), client_address, with_checksum=False)
 
         packet_index = 0
+        packet_timeout = False
         while packet_index < packet_count:
-            print(f"[INFO] Sending packet{packet_index} of file {file_name}...")
-            packet = file.read(BUFFER_SIZE - checksum.CHECKSUM_LENGTH)
-            rdt_send(packet, client_address)
+            try:
+                print(f"[INFO] Sending packet{packet_index} of file {file_name}...")
+                if not packet_timeout:
+                    packet = file.read(BUFFER_SIZE - checksum.CHECKSUM_LENGTH)
+                rdt_send(packet, client_address)
+                packet_timeout = False
+            except socket.timeout:
+                packet_timeout = True
+                continue
 
             print(f"[INFO] Waiting for ACK{packet_index}...")
             sock.settimeout(TIMEOUT)
