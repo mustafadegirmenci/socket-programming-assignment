@@ -29,6 +29,7 @@ def run_benchmark_packet_loss(num_runs, loss_list):
         for i in range(num_runs):
             try:
                 elapsed_time = tcpclient.request_files_and_measure_time(10)
+                print(f"elapsed time: {elapsed_time}")
                 list_results[loss].append(elapsed_time)
             except:
                 continue
@@ -59,7 +60,7 @@ def run_benchmark_packet_corruption(num_runs, corruption_list):
     for key in list_results.keys():
         val = list_results[key]
         results[key] = sum(val) / len(val)
-    plot_with_confidence_intervals(results, f'TCP Packet Corruption {corruption}%', 'Corruption (%) - Alternative', 'Average Elapsed Time (s)')
+    plot_with_confidence_intervals(results, f'TCP Packet Corruption - Alternative', 'Corruption (%)', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_duplication(num_runs, duplication):
