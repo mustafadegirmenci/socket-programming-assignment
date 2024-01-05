@@ -47,6 +47,10 @@ def receive_single_file(sock, file_name):
                             try:
                                 print(f"[INFO] Sending ACK{packet_index}")
                                 rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
                                 print(f"[INFO] Sent ACK{packet_index} successfully")
                                 packet_index += 1
                                 break
@@ -57,6 +61,10 @@ def receive_single_file(sock, file_name):
                     else:
                         while True:
                             try:
+                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
                                 rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
                                 break
                             except socket.timeout:
