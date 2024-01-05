@@ -38,7 +38,7 @@ def run_benchmark_no_rules(num_runs):
         tc.clear_rules()
         try:
             elapsed_time_no_rules = tcpclient.request_files_and_measure_time(10)
-            results[i] = (elapsed_time_no_rules)
+            results[i] = elapsed_time_no_rules
         except:
             continue
 
@@ -53,7 +53,7 @@ def run_benchmark_packet_loss(num_runs, loss_percentage):
         tc.apply_packet_loss(loss_percentage)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i].append(elapsed_time)
+            results[i] = elapsed_time
         except:
             continue
 
@@ -68,7 +68,7 @@ def run_benchmark_packet_corruption(num_runs, corruption):
         tc.apply_packet_corruption(corruption)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i].append(elapsed_time)
+            results[i] = elapsed_time
         except:
             continue
 
@@ -115,7 +115,7 @@ def run_benchmark_packet_duplication(num_runs, duplication):
         tc.apply_packet_duplication(duplication)
         try:
             elapsed_time = tcpclient.request_files_and_measure_time(10)
-            results[i].append(elapsed_time)
+            results[i] = elapsed_time
         except:
             continue
 
