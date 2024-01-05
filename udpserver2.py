@@ -57,7 +57,7 @@ def send_single_file(file_name, client_address):
                     continue
             except socket.timeout:
                 print(f"[INFO] Timeout occurred, resending packet {packet_index}...")
-                sock.sendto(packet, client_address)
+                continue
 
             print(f"[INFO] Sending again...\n")
         print(f"[INFO] File {file_name} sent.\n")
