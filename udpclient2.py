@@ -15,7 +15,10 @@ def receive_single_file(udp_socket, file_name):
 
     try:
         with open(file_path, "wb") as file:
+            i = 0
             while True:
+                print(f"Received {i} times.")
+                i += 1
                 data, _ = udp_socket.recvfrom(BUFFER_SIZE)
                 if data.endswith(b"EOF"):
                     file.write(data[:-3])
