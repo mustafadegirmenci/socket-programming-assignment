@@ -26,7 +26,9 @@ def send_single_file(client_address, file_name, sequence_number, udp_socket):
         if ack_seq == sequence_number:
             print(f"[INFO] Acknowledgment for {file_name} received.\n")
         else:
-            print(f"[WARNING] Acknowledgment for {file_name} not received as expected.\n")
+            print(f"[WARNING] Acknowledgment for {file_name} not received as expected.\n"
+                  f"Received:{ack_seq}\n"
+                  f"Expected: {sequence_number}\n")
 
     except FileNotFoundError:
         print(f"[ERROR] File not found: {file_path}")
