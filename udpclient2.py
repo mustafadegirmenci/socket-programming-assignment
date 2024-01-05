@@ -37,31 +37,38 @@ def receive_single_file(sock, file_name):
 
     packet_index = 0
     with open(file_path, "wb") as file:
+        sock.settimeout(TIMEOUT)
         while packet_index < packet_count:
-            sock.settimeout(None)
-            checksum_and_data, _ = rdt_rcv(sock)
-            sock.settimeout(TIMEOUT)
-            if checksum.validate_checksum(checksum_and_data):
-                file.write(checksum.extract_data(checksum_and_data))
+            while True:
+                try:
+                    checksum_and_data, _ = rdt_rcv(sock)
+                    if checksum.validate_checksum(checksum_and_data):
+                        file.write(checksum.extract_data(checksum_and_data))
 
-                while True:
-                    try:
-                        print(f"[INFO] Sending ACK{packet_index}")
-                        rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                        print(f"[INFO] Sent ACK{packet_index} successfully")
-                        packet_index += 1
-                        break
-                    except socket.timeout:
-                        print(f"[INFO] Timeout occured while sending ACK{packet_index}")
-                        packet_index -= 1
-                        continue
-            else:
-                while True:
-                    try:
-                        rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                        break
-                    except socket.timeout:
-                        continue
+                        while True:
+                            try:
+                                print(f"[INFO] Sending ACK{packet_index}")
+                                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                print(f"[INFO] Sent ACK{packet_index} successfully")
+                                packet_index += 1
+                                break
+                            except socket.timeout:
+                                print(f"[INFO] Timeout occured while sending ACK{packet_index}")
+                                packet_index -= 1
+                                continue
+                    else:
+                        while True:
+                            try:
+                                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                                break
+                            except socket.timeout:
+                                continue
+                    break
+                except socket.timeout:
+                    print(f"[INFO] Sending ACK{packet_index - 1}")
+                    rdt_send(sock, f"ACK{packet_index - 1}", (SERVER_IP, SERVER_PORT))
+                    print(f"[INFO] Sent ACK{packet_index - 1} successfully")
+                    continue
 
     print(f"[INFO] Received file {file_name}.\n")
 
