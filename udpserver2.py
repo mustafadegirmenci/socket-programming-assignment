@@ -56,13 +56,16 @@ def send_single_file(file_name, client_address):
                 print(f"[INFO] Timeout occurred, while sending packet {packet_index}...")
                 continue
 
-            print(f"[INFO] Waiting for ACK{packet_index}...")
-            data, client_address = sock.recvfrom(BUFFER_SIZE)
-            if data.decode() == f"ACK{packet_index}":
-                print(f"[INFO] Got ACK{packet_index}...")
-                packet_index += 1
-            else:
-                print(f"[INFO] Got {data} instead of ACK{packet_index}...")
+            try:
+                print(f"[INFO] Waiting for ACK{packet_index}...")
+                data, client_address = sock.recvfrom(BUFFER_SIZE)
+                if data.decode() == f"ACK{packet_index}":
+                    print(f"[INFO] Got ACK{packet_index}...")
+                    packet_index += 1
+                else:
+                    print(f"[INFO] Got {data} instead of ACK{packet_index}...")
+            except socket.timeout:
+                print(f"[INFO] Timeout occurred, while receiving ACK{packet_index}...")
 
         print(f"[INFO] File {file_name} sent.\n")
 
