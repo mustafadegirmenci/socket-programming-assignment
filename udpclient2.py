@@ -1,39 +1,40 @@
 import socket
-import time
 
 import checksum
 
 SERVER_IP = "localhost"
 SERVER_PORT = 8000
 BUFFER_SIZE = 1024
-REQUESTED_FILE_COUNT = 10
+FILE_COUNT = 10
 
 
 def rdt_send(message: str, address: (str, int)):
     sock.sendto(message.encode(), address)
-    print(f"Sent: {message} to {address}")
 
 
 def rdt_rcv() -> (bytes, (str, int)):  # data, (ip, port)
     received = sock.recvfrom(BUFFER_SIZE)
-    print(f"Received: {received}")
     return received
 
 
 if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    rdt_send(f"GIVE ME THE FILES", (SERVER_IP, SERVER_PORT))
 
-    for requested_file_index in range(REQUESTED_FILE_COUNT):
-        rdt_send(f"GIVE ME THE FILE:{requested_file_index}", (SERVER_IP, SERVER_PORT))
+    for file_index in range(FILE_COUNT):
+        data, _ = rdt_rcv()
 
-        while True:
-            time.sleep(1)
+        packet_count = int(data.decode().split(":")[1])
+        print(f"[INFO] {packet_count} packets are coming for file{file_index}...")
 
+        packet_index = 0
+        while packet_index < packet_count:
             data, _ = rdt_rcv()
-
             if checksum.validate_checksum(data):
-                rdt_send(f"ACKFILE{requested_file_index}", (SERVER_IP, SERVER_PORT))
-                requested_file_index += 1
-                break
+                print(f"[INFO] Sending ACK{packet_index} for file{file_index}...")
+                rdt_send(f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                packet_index += 1
             else:
-                rdt_send(f"NAKFILE{requested_file_index}", (SERVER_IP, SERVER_PORT))
+                print(f"[INFO] Sending NAK{packet_index} for file{file_index}.........")
+                rdt_send(f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+        print(f"[INFO] Received file{file_index}.\n")

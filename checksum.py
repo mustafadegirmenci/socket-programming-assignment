@@ -5,7 +5,7 @@ CHECKSUM_LENGTH = 32
 
 
 def calculate_checksum(data: bytes) -> bytes:
-    if random.random() < 0.5:
+    if random.random() < 0.1:
         return hashlib.sha256(b"faulty data").digest()
     else:
         hash_function = hashlib.sha256()
