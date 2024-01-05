@@ -23,6 +23,8 @@ def send_file(filepath, server_socket):
         with open(filepath, 'rb') as file:
             file_length = os.path.getsize(filepath)
             filename = os.path.basename(filepath)
+            if(filename[-4:-1]!='.ob'):
+                return
 
             print(f"[INFO]Sending {filename} ({file_length} bytes)")
 
@@ -49,6 +51,7 @@ def send_file(filepath, server_socket):
                 print(f"[INFO]Server progress: {sent} / {file_length}")
 
             print(f"[INFO]Completed sending {filename}")
+            file.close()
 
     except OSError as e:
         print(f"[INFO]Error opening file {filepath}: {e}")
@@ -79,11 +82,12 @@ def main():
     if rdt.rdt_peer(CLIENT_IP, rdt.CPORT) == -1:
         print("[INFO]Cannot connect client socket")
         sys.exit(0)
-
+    print(os.listdir(directory))
     for filename in os.listdir(directory):
         filepath = os.path.join(directory, filename)
         if os.path.isfile(filepath):
             send_file(filepath, server_socket)
+            print("pass other")
 
     rdt.rdt_close(server_socket)
     print("Server program terminated")
