@@ -47,12 +47,15 @@ def send_single_file(file_name, client_address):
             rdt_send(packet, client_address)
 
             print(f"[INFO] Waiting for ACK{packet_index}...")
-            data, client_address = rdt_rcv()
-
-            if data.decode() == f"ACK{packet_index}":
-                print(f"[INFO] Got ACK{packet_index}...")
-                packet_index += 1
-                continue
+            try:
+                data, client_address = sock.recvfrom(BUFFER_SIZE)
+                if data.decode() == f"ACK{packet_index}":
+                    print(f"[INFO] Got ACK{packet_index}...")
+                    packet_index += 1
+                    continue
+            except socket.timeout:
+                print(f"[INFO] Timeout occurred, resending packet {packet_index}...")
+                sock.sendto(packet, client_address)
 
             print(f"[INFO] Sending again...\n")
         print(f"[INFO] File {file_name} sent.\n")
