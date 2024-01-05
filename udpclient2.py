@@ -21,18 +21,16 @@ def rdt_rcv(sock) -> (bytes, (str, int)):  # data, (ip, port)
 
 
 def receive_single_file(sock, file_name):
-    sock.settimeout(None)
 
-    checksum_and_data, _ = rdt_rcv(sock)
+    while True:
+        try:
+            packet_count_info, _ = rdt_rcv(sock)
+            packet_count = int(packet_count_info.decode().split(":")[1])
+            print(f"[INFO] {packet_count} packets are coming for file {file_name}...")
+            break
+        except socket.timeout:
+            continue
 
-    sock.settimeout(TIMEOUT)
-    try:
-        packet_count = int(checksum_and_data.decode().split(":")[1])
-        print(checksum_and_data.decode())
-    except UnicodeDecodeError:
-        print(checksum_and_data)
-
-    print(f"[INFO] {packet_count} packets are coming for file {file_name}...")
     file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
 
     packet_index = 0
