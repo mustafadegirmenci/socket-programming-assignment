@@ -7,128 +7,156 @@ import tcpclient
 PACKET_DELAY_JITTER = 5
 
 
-def run_benchmark(num_runs):
-    results = {
-        'no_rules': [],
-        'packet_loss': {loss: [] for loss in [0, 5, 10, 15]},
-        'packet_corruption': {corruption: [] for corruption in [0, 5, 10]},
-        'packet_delay_uniform': [],
-        'packet_delay_normal': [],
-        'packet_duplication': {duplication: [] for duplication in [0, 5, 10, 15]}
-    }
+def run_benchmark_no_rules(num_runs):
+    results = []
 
     for _ in range(num_runs):
         tc.clear_rules()
-
-        # No rules test
         elapsed_time_no_rules = tcpclient.request_files_and_measure_time(10)
-        results['no_rules'].append(elapsed_time_no_rules)
-
-        # Packet Loss tests
-        for loss in [0, 5, 10, 15]:
-            tc.clear_rules()
-            tc.apply_packet_loss(loss)
-            elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
-            results['packet_loss'][loss].append(elapsed_time)
-
-        # Packet Corruption tests
-        for corruption in [0, 5, 10]:
-            tc.clear_rules()
-            tc.apply_packet_corruption(corruption)
-            elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
-            results['packet_corruption'][corruption].append(elapsed_time)
-
-        # Packet Delay (Uniform)
-        tc.clear_rules()
-        tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
-        elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
-        results['packet_delay_uniform'].append(elapsed_time)
-
-        # Packet Delay (Normal)
-        tc.clear_rules()
-        tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
-        elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
-        results['packet_delay_normal'].append(elapsed_time)
-
-        for duplication in [0, 5, 10]:
-            tc.clear_rules()
-            tc.apply_packet_duplication(duplication)
-            elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
-            results['packet_duplication'][duplication].append(elapsed_time)
+        results.append(elapsed_time_no_rules)
 
     return results
 
 
-def calculate_average(results, num_runs):
-    avg_results = {
-        'no_rules': sum(results['no_rules']) / num_runs,
-        'packet_loss': {loss: sum(times) / num_runs for loss, times in results['packet_loss'].items()},
-        'packet_corruption': {corruption: sum(times) / num_runs for corruption, times in
-                              results['packet_corruption'].items()},
-        'packet_delay_uniform': sum(results['packet_delay_uniform']) / num_runs,
-        'packet_delay_normal': sum(results['packet_delay_normal']) / num_runs,
-        'packet_duplication': {duplication: sum(times) / num_runs for duplication, times in
-                               results['packet_duplication'].items()}
+def run_benchmark_packet_loss(num_runs, losses):
+    results = {loss: [] for loss in losses}
 
-    }
-    return avg_results
+    for loss in losses:
+        for _ in range(num_runs):
+            tc.clear_rules()
+            tc.apply_packet_loss(loss)
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
+            results[loss].append(elapsed_time)
+
+    return results
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("[WARNING] Usage: python script_name.py <num_benchmarks>")
-        num_benchmarks = 1
-    else:
-        num_benchmarks = int(sys.argv[1])
+def run_benchmark_packet_corruption(num_runs, corruptions):
+    results = {corruption: [] for corruption in corruptions}
 
-    print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
-    benchmark_results = run_benchmark(num_benchmarks)
-    average_results = calculate_average(benchmark_results, num_benchmarks)
+    for corruption in corruptions:
+        for _ in range(num_runs):
+            tc.clear_rules()
+            tc.apply_packet_corruption(corruption)
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
+            results[corruption].append(elapsed_time)
 
-    print("[INFO] Average Benchmark Results:\n")
-    print(f"No Rules: \t{average_results['no_rules']}\n")
+    return results
 
-    for loss, avg_time in average_results['packet_loss'].items():
-        print(f"Packet Loss ({loss}%): \t{avg_time}\n")
 
-    for corruption, avg_time in average_results['packet_corruption'].items():
-        print(f"Packet Corruption ({corruption}%): \t{avg_time}\n")
+def run_benchmark_packet_delay_uniform(num_runs):
+    results = []
 
-    print(f"Delay (Uniform): \t{average_results['packet_delay_uniform']}\n")
-    print(f"Delay (Normal): \t{average_results['packet_delay_normal']}\n")
+    for _ in range(num_runs):
+        tc.clear_rules()
+        tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
+        elapsed_time = tcpclient.request_files_and_measure_time(10)
+        results.append(elapsed_time)
 
-    plt.figure(figsize=(10, 6))
+    return results
 
-    plt.subplot(2, 2, 1)
-    plt.plot(list(average_results['packet_loss'].keys()), list(average_results['packet_loss'].values()), marker='o')
+
+def run_benchmark_packet_delay_normal(num_runs):
+    results = []
+
+    for _ in range(num_runs):
+        tc.clear_rules()
+        tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
+        elapsed_time = tcpclient.request_files_and_measure_time(10)
+        results.append(elapsed_time)
+
+    return results
+
+
+def run_benchmark_packet_duplication(num_runs, duplications):
+    results = {duplication: [] for duplication in duplications}
+
+    for duplication in duplications:
+        for _ in range(num_runs):
+            tc.clear_rules()
+            tc.apply_packet_duplication(duplication)
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
+            results[duplication].append(elapsed_time)
+
+    return results
+
+
+def plot_packet_loss(results):
+    plt.figure(figsize=(6, 4))
+    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
     plt.title('Packet Loss')
     plt.xlabel('Loss (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
+    plt.tight_layout()
+    plt.show()
 
-    plt.subplot(2, 2, 2)
-    plt.plot(list(average_results['packet_corruption'].keys()), list(average_results['packet_corruption'].values()),
-             marker='o')
+
+def plot_packet_corruption(results):
+    plt.figure(figsize=(6, 4))
+    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
     plt.title('Packet Corruption')
     plt.xlabel('Corruption (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
+    plt.tight_layout()
+    plt.show()
 
-    plt.subplot(2, 2, 3)
-    plt.bar(['No Rules', 'Uniform Delay', 'Normal Delay'],
-            [average_results['no_rules'], average_results['packet_delay_uniform'],
-             average_results['packet_delay_normal']])
-    plt.title('Packet Delay')
+
+def plot_packet_delay_uniform(results):
+    plt.figure(figsize=(6, 4))
+    plt.bar(['Packet Delay (Uniform)'], [sum(results) / len(results)])
+    plt.title('Packet Delay (Uniform)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
+    plt.tight_layout()
+    plt.show()
 
-    plt.subplot(2, 3, 5)  # Update subplot index accordingly
-    plt.plot(list(average_results['packet_duplication'].keys()), list(average_results['packet_duplication'].values()),
-             marker='o')
+
+def plot_packet_delay_normal(results):
+    plt.figure(figsize=(6, 4))
+    plt.bar(['Packet Delay (Normal)'], [sum(results) / len(results)])
+    plt.title('Packet Delay (Normal)')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_packet_duplication(results):
+    plt.figure(figsize=(6, 4))
+    plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
     plt.title('Packet Duplication')
     plt.xlabel('Duplication (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
-
     plt.tight_layout()
-    plt.savefig('plot.png')
+    plt.show()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("[ERROR] Usage: python script_name.py <num_benchmarks>")
+        sys.exit(1)
+
+    num_benchmarks = int(sys.argv[1])
+
+    print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
+
+    losses_to_test = [0, 5, 10, 15]
+    packet_loss_results = run_benchmark_packet_loss(num_benchmarks, losses_to_test)
+    plot_packet_loss(packet_loss_results)
+
+    corruptions_to_test = [0, 5, 10]
+    packet_corruption_results = run_benchmark_packet_corruption(num_benchmarks, corruptions_to_test)
+    plot_packet_corruption(packet_corruption_results)
+
+    packet_delay_uniform_results = run_benchmark_packet_delay_uniform(num_benchmarks)
+    plot_packet_delay_uniform(packet_delay_uniform_results)
+
+    packet_delay_normal_results = run_benchmark_packet_delay_normal(num_benchmarks)
+    plot_packet_delay_normal(packet_delay_normal_results)
+
+    duplications_to_test = [0, 5, 10, 15]
+    packet_duplication_results = run_benchmark_packet_duplication(num_benchmarks, duplications_to_test)
+    plot_packet_duplication(packet_duplication_results)
