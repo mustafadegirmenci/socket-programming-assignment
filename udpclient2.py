@@ -8,7 +8,7 @@ SERVER_PORT = 8000
 BUFFER_SIZE = 1024
 FILE_COUNT = 10
 FOLDER_RELATIVE_PATH = "ReceivedObjects"
-TIMEOUT = 0.5
+TIMEOUT = 0.2
 
 
 def rdt_send(sock, message: str, address: (str, int)):
@@ -43,11 +43,10 @@ def receive_single_file(sock, file_name):
                 if not ack_timeout:
                     checksum_and_data, _ = rdt_rcv(sock)
                 if checksum.validate_checksum(checksum_and_data):
-                    file.write(checksum.extract_data(checksum_and_data))
-                    print(f"[INFO] Sending ACK{packet_index}.")
+                    if not ack_timeout:
+                        file.write(checksum.extract_data(checksum_and_data))
                     rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
                     ack_timeout = False
-                    print(f"[INFO]      Sent ACK{packet_index}.")
                     packet_index += 1
                 else:
                     rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
