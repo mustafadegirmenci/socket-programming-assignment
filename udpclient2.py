@@ -93,7 +93,13 @@ def receive_single_file(sock, file_name):
 
 def receive_all_files():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    rdt_send(sock, f"GIVE ME THE FILES", (SERVER_IP, SERVER_PORT))
+
+    while True:
+        try:
+            rdt_send(sock, f"GIVE ME THE FILES", (SERVER_IP, SERVER_PORT))
+            break
+        except socket.timeout:
+            continue
 
     start_time = time.time()
     for file_index in range(FILE_COUNT):
