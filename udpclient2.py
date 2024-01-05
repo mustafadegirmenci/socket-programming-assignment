@@ -26,7 +26,7 @@ def receive_single_file(udp_socket, file_name):
                 file.write(data)
         print(f"[INFO] Finished receiving file: {file_path}")
 
-        udp_socket.sendall(b"ACK", (SERVER_HOST, SERVER_PORT))
+        udp_socket.sendto(b"ACK", (SERVER_HOST, SERVER_PORT))
         print(f"[INFO] The server has been notified.\n")
 
     except FileNotFoundError:
