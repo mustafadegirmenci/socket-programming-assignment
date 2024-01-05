@@ -21,7 +21,7 @@ def run_benchmark_no_rules(num_runs):
     plt.figure(figsize=(8, 6))
     plt.plot(range(1, num_runs + 1), results, marker='o', linestyle='-')
     plt.xlabel('Run Number')
-    plt.ylabel('Result')
+    plt.ylabel('Elapsed Time')
     plt.title('TCP No Rules')
     plt.grid(True)
     plt.savefig("tcp_norules")
