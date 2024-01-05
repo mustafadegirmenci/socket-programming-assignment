@@ -25,6 +25,7 @@ def receive_single_file(sock, file_name):
     prev_packet_count = 0
     while True:
         try:
+            print(f"[INFO] Receiving packet count for file {file_name}.")
             packet_count_info, _ = rdt_rcv(sock)
             packet_count = int(packet_count_info.decode().split(":")[1])
             print(f"[INFO] {packet_count} packets are coming for file {file_name}...")

@@ -43,9 +43,11 @@ def send_single_file(file_name, client_address):
 
         while True:
             try:
+                print(f"[INFO] Sending packet count for file {file_name}.")
                 rdt_send(f"Packet Count:{packet_count}".encode(), client_address, with_checksum=False)
                 break
             except socket.timeout:
+                print(f"[INFO] Timeout occured while sending packet count for file {file_name}.")
                 continue
 
         packet_index = 0
