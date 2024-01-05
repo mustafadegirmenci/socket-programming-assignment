@@ -73,7 +73,7 @@ def run_benchmark_packet_duplication(num_runs, duplication_list):
         for i in range(num_runs):
             try:
                 elapsed_time = tcpclient.request_files_and_measure_time(10)
-                list_results[i].append(elapsed_time)
+                list_results[duplication].append(elapsed_time)
             except:
                 continue
 
