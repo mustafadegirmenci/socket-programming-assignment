@@ -45,15 +45,15 @@ def run_benchmark_packet_loss(num_runs, loss_list):
 def run_benchmark_packet_corruption(num_runs, corruption_list):
     list_results = {}
 
-    for corruption in corruption_list
-    for i in range(num_runs):
+    for corruption in corruption_list:
         tc.clear_rules()
         tc.apply_packet_corruption(corruption)
-        try:
-            elapsed_time = tcpclient.request_files_and_measure_time(10)
-            list_results[i].append(elapsed_time)
-        except:
-            continue
+        for i in range(num_runs):
+            try:
+                elapsed_time = tcpclient.request_files_and_measure_time(10)
+                list_results[corruption].append(elapsed_time)
+            except:
+                continue
 
     results = {}
     for key in list_results.keys():
