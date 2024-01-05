@@ -18,14 +18,13 @@ def run_benchmark_no_rules(num_runs):
         except:
             continue
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(list(results), [int(sum(times) / len(times)) for times in results], marker='o')
-    plt.title('No Rules')
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, num_runs + 1), results, marker='o', linestyle='-')
     plt.xlabel('Run Number')
-    plt.ylabel('Average Elapsed Time (s)')
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig("tcp_no_rules")
+    plt.ylabel('Result')
+    plt.title('TCP No Rules')
+    plt.grid(True)
+    plt.savefig("tcp_norules")
 
 
 def run_benchmark_packet_loss(num_runs, losses):
@@ -43,7 +42,7 @@ def run_benchmark_packet_loss(num_runs, losses):
 
     plt.figure(figsize=(6, 4))
     plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Loss')
+    plt.title('TCP Packet Loss')
     plt.xlabel('Loss (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
@@ -66,7 +65,7 @@ def run_benchmark_packet_corruption(num_runs, corruptions):
 
     plt.figure(figsize=(6, 4))
     plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Corruption')
+    plt.title('TCP Packet Corruption')
     plt.xlabel('Corruption (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
@@ -88,7 +87,7 @@ def run_benchmark_packet_delay_uniform(num_runs):
 
     plt.figure(figsize=(6, 4))
     plt.bar(['Packet Delay (Uniform)'], [sum(results) / len(results)])
-    plt.title('Packet Delay (Uniform)')
+    plt.title('TCP Packet Delay (Uniform)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
     plt.tight_layout()
@@ -109,7 +108,7 @@ def run_benchmark_packet_delay_normal(num_runs):
 
     plt.figure(figsize=(6, 4))
     plt.bar(['Packet Delay (Normal)'], [sum(results) / len(results)])
-    plt.title('Packet Delay (Normal)')
+    plt.title('TCP Packet Delay (Normal)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
     plt.tight_layout()
@@ -131,7 +130,7 @@ def run_benchmark_packet_duplication(num_runs, duplications):
 
     plt.figure(figsize=(6, 4))
     plt.plot(list(results.keys()), [sum(times) / len(times) for times in results.values()], marker='o')
-    plt.title('Packet Duplication')
+    plt.title('TCP Packet Duplication')
     plt.xlabel('Duplication (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
