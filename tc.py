@@ -19,6 +19,14 @@ def apply_packet_delay_normal(delay, jitter, interface=DEFAULT_INTERFACE):
     command = f"tc qdisc add dev {interface} root netem delay {delay}ms {jitter}ms distribution normal"
     subprocess.run(command, shell=True)
 
+def apply_packet_duplication(duplication_percentage, interface=DEFAULT_INTERFACE):
+    if not TC_ACTIVE:
+        return
+    print(f"[INFO] Setting packet duplication to {duplication_percentage}%...\n")
+    command = f"tc qdisc add dev {interface} root netem duplicate {duplication_percentage}%"
+    subprocess.run(command, shell=True)
+
+
 
 def apply_packet_delay_uniform(delay, jitter, interface=DEFAULT_INTERFACE):
     if not TC_ACTIVE:

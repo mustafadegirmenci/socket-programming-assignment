@@ -13,7 +13,9 @@ def run_benchmark(num_runs):
         'packet_loss': {loss: [] for loss in [0, 5, 10, 15]},
         'packet_corruption': {corruption: [] for corruption in [0, 5, 10]},
         'packet_delay_uniform': [],
-        'packet_delay_normal': []
+        'packet_delay_normal': [],
+        'packet_duplication' : {duplication: [] for duplication in [0, 5, 10,15]}
+
     }
 
     for _ in range(num_runs):
@@ -37,6 +39,8 @@ def run_benchmark(num_runs):
             elapsed_time = udpclient2.receive_all_files()
             results['packet_corruption'][corruption].append(elapsed_time)
 
+
+
         # Packet Delay (Uniform)
         tc.clear_rules()
         tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
@@ -49,6 +53,12 @@ def run_benchmark(num_runs):
         elapsed_time = udpclient2.receive_all_files()
         results['packet_delay_normal'].append(elapsed_time)
 
+        for duplication in [0, 5, 10]:
+            tc.clear_rules()
+            tc.apply_packet_duplication(duplication)
+            elapsed_time = udpclient2.receive_all_files()
+            results['packet_duplication'][duplication].append(elapsed_time)
+
     return results
 
 
@@ -59,7 +69,10 @@ def calculate_average(results, num_runs):
         'packet_corruption': {corruption: sum(times) / num_runs for corruption, times in
                               results['packet_corruption'].items()},
         'packet_delay_uniform': sum(results['packet_delay_uniform']) / num_runs,
-        'packet_delay_normal': sum(results['packet_delay_normal']) / num_runs
+        'packet_delay_normal': sum(results['packet_delay_normal']) / num_runs,
+        'packet_duplication': {duplication: sum(times) / num_runs for duplication, times in
+                               results['packet_duplication'].items()}
+
     }
     return avg_results
 
@@ -109,6 +122,14 @@ if __name__ == "__main__":
             [average_results['no_rules'], average_results['packet_delay_uniform'],
              average_results['packet_delay_normal']])
     plt.title('Packet Delay')
+    plt.ylabel('Average Elapsed Time (s)')
+    plt.grid()
+
+    plt.subplot(2, 3, 5)  # Update subplot index accordingly
+    plt.plot(list(average_results['packet_duplication'].keys()), list(average_results['packet_duplication'].values()),
+             marker='o')
+    plt.title('Packet Duplication')
+    plt.xlabel('Duplication (%)')
     plt.ylabel('Average Elapsed Time (s)')
     plt.grid()
 
