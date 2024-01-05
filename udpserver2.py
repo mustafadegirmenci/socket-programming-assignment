@@ -4,7 +4,7 @@ import threading
 SERVER_HOST = "172.17.0.2"
 SERVER_PORT = 8000
 FOLDER_RELATIVE_PATH = "../root/objects"
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 
 
 def send_single_file(client_address, file_name, udp_socket):
