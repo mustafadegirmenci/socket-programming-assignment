@@ -55,7 +55,7 @@ def respond_file_requests():
         print("[ERROR] Failed to create RDT socket")
         return
 
-    if rdt2.rdt_bind(server_socket, SERVER_PORT) < 0:
+    if rdt2.rdt_bind(server_socket, SERVER_HOST, SERVER_PORT) < 0:
         print("[ERROR] Failed to bind RDT socket")
         return
 

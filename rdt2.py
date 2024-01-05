@@ -91,13 +91,13 @@ def rdt_socket():
         return None
 
 
-def rdt_bind(sockd, port):
+def rdt_bind(sockd, host, port):
 
     #Bind the RDT socket to a specified port.
 
 
     try:
-        sockd.bind(("", port))
+        sockd.bind((host, port))
         return 0
     except socket.error as err_msg:
         print("Socket bind error: ", err_msg)
