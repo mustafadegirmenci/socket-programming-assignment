@@ -42,7 +42,7 @@ def run_benchmark_no_rules(num_runs):
         except:
             continue
 
-    plot_with_confidence_intervals(results, 'TCP Packet Loss', 'Loss (%)', 'Average Elapsed Time (s)')
+    plot_with_confidence_intervals(results, 'TCP No Rules', 'Run Number', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_loss(num_runs, loss_percentage):
@@ -57,7 +57,7 @@ def run_benchmark_packet_loss(num_runs, loss_percentage):
         except:
             continue
 
-    plot_with_confidence_intervals(results, f'TCP Packet Loss {loss_percentage}%', 'Loss (%)', 'Average Elapsed Time (s)')
+    plot_with_confidence_intervals(results, f'TCP Packet Loss {loss_percentage}%', 'Run Number', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_corruption(num_runs, corruption):
@@ -72,7 +72,7 @@ def run_benchmark_packet_corruption(num_runs, corruption):
         except:
             continue
 
-    plot_with_confidence_intervals(results, f'TCP Packet Corruption {corruption}%', 'Corruption (%)', 'Average Elapsed Time (s)')
+    plot_with_confidence_intervals(results, f'TCP Packet Corruption {corruption}%', 'Run Number', 'Average Elapsed Time (s)')
 
 
 def run_benchmark_packet_delay_uniform(num_runs):
@@ -87,7 +87,7 @@ def run_benchmark_packet_delay_uniform(num_runs):
         except:
             continue
 
-    plot_with_confidence_intervals(results, f'TCP Delay (Uniform) {100}ms', 'Delay (%)',
+    plot_with_confidence_intervals(results, f'TCP Delay (Uniform) {100}ms', 'Run Number',
                                    'Average Elapsed Time (s)')
 
 
@@ -103,7 +103,7 @@ def run_benchmark_packet_delay_normal(num_runs):
         except:
             continue
 
-    plot_with_confidence_intervals(results, f'TCP Delay (Normal) {100}ms', 'Delay (%)',
+    plot_with_confidence_intervals(results, f'TCP Delay (Normal) {100}ms', 'Run Number',
                                    'Average Elapsed Time (s)')
 
 
@@ -119,7 +119,7 @@ def run_benchmark_packet_duplication(num_runs, duplication):
         except:
             continue
 
-    plot_with_confidence_intervals(results, f'TCP Duplication {duplication}%', 'Duplication (%)',
+    plot_with_confidence_intervals(results, f'TCP Duplication {duplication}%', 'Run Number',
                                    'Average Elapsed Time (s)')
 
 
