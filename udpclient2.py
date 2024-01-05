@@ -38,9 +38,9 @@ def receive_single_file(sock, file_name):
     packet_index = 0
     with open(file_path, "wb") as file:
         while packet_index < packet_count:
-            sock.timeout(None)
+            sock.settimeout(None)
             checksum_and_data, _ = rdt_rcv(sock)
-            sock.timeout(TIMEOUT)
+            sock.settimeout(TIMEOUT)
             if checksum.validate_checksum(checksum_and_data):
                 file.write(checksum.extract_data(checksum_and_data))
 
