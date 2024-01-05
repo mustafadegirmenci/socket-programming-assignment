@@ -29,24 +29,16 @@ def receive_single_file(sock, file_name):
     packet_index = 0
     with open(file_path, "wb") as file:
         while packet_index < packet_count:
+            print(f"[INFO] Waiting for next packet...")
             checksum_and_data, _ = rdt_rcv(sock)
+            print(f"[INFO] Received {checksum_and_data}.")
             if checksum.validate_checksum(checksum_and_data):
                 file.write(checksum.extract_data(checksum_and_data))
                 print(f"[INFO] Sending ACK{packet_index} for file {file_name}...")
                 rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
                 packet_index += 1
             else:
                 print(f"[INFO] Sending NAK{packet_index} for file {file_name}.........")
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
-                rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
                 rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
 
     print(f"[INFO] Received file {file_name}.\n")
