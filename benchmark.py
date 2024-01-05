@@ -9,25 +9,15 @@ PACKET_DELAY_JITTER = 5
 
 
 def plot_with_confidence_intervals(results_dict, title, xlabel, ylabel):
-    x = np.array(list(results_dict.keys()))
-    y = np.array(list(results_dict.values()))
+    x_values = results_dict.keys()
+    y_values = results_dict.values()
 
-    mean = np.mean(y)
-    se = np.std(y) / np.sqrt(len(y))
-
-    ci = 1.96 * se
-    lower = mean - ci
-    upper = mean + ci
-
-    plt.plot(x, y, 'bo', label='data')
-    plt.hlines(mean, x[0], x[-1], 'r', label='mean')
-    plt.fill_between(x, lower, upper, color='b', alpha=0.1, label='95% CI')
-
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_values, y_values)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-
-    plt.legend()
+    plt.grid(True)
     plt.savefig(f"experiment_{title}")
 
 
