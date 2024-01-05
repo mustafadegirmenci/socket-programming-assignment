@@ -2,7 +2,7 @@ import sys
 
 from matplotlib import pyplot as plt
 import tc
-import udpclient2
+import tcpclient
 
 PACKET_DELAY_JITTER = 5
 
@@ -26,7 +26,7 @@ def run_benchmark_no_rules(num_runs):
     for i in range(num_runs):
         tc.clear_rules()
         try:
-            elapsed_time_no_rules = udpclient2.receive_all_files()
+            elapsed_time_no_rules = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time_no_rules
         except:
             continue
@@ -41,7 +41,7 @@ def run_benchmark_packet_loss(num_runs, loss_percentage):
         tc.clear_rules()
         tc.apply_packet_loss(loss_percentage)
         try:
-            elapsed_time = udpclient2.receive_all_files()
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time
         except:
             continue
@@ -56,7 +56,7 @@ def run_benchmark_packet_corruption(num_runs, corruption):
         tc.clear_rules()
         tc.apply_packet_corruption(corruption)
         try:
-            elapsed_time = udpclient2.receive_all_files()
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time
         except:
             continue
@@ -71,7 +71,7 @@ def run_benchmark_packet_delay_uniform(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
         try:
-            elapsed_time = udpclient2.receive_all_files()
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time
         except:
             continue
@@ -87,7 +87,7 @@ def run_benchmark_packet_delay_normal(num_runs):
         tc.clear_rules()
         tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
         try:
-            elapsed_time = udpclient2.receive_all_files()
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time
         except:
             continue
@@ -103,7 +103,7 @@ def run_benchmark_packet_duplication(num_runs, duplication):
         tc.clear_rules()
         tc.apply_packet_duplication(duplication)
         try:
-            elapsed_time = udpclient2.receive_all_files()
+            elapsed_time = tcpclient.request_files_and_measure_time(10)
             results[i] = elapsed_time
         except:
             continue
@@ -126,15 +126,11 @@ if __name__ == "__main__":
         run_benchmark_no_rules(num_benchmarks)
 
     elif experiment_type == "loss":
-        for loss in [0, 5, 10, 15]:
-            run_benchmark_packet_loss(num_benchmarks, loss)
+        run_benchmark_packet_loss(num_benchmarks, [0, 5, 10, 15])
 
     elif experiment_type == "corruption":
-        for corruption in [0, 5, 10]:
-            run_benchmark_packet_corruption(num_benchmarks, corruption)
+        run_benchmark_packet_corruption(num_benchmarks, [0, 5, 10])
 
-    elif experiment_type == "delay_uniform":
-        run_benchmark_packet_delay_uniform(num_benchmarks)
 
     elif experiment_type == "delay_normal":
         run_benchmark_packet_delay_normal(num_benchmarks)
