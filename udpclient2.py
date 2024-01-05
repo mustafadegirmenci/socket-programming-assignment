@@ -23,7 +23,7 @@ def receive_single_file(udp_socket, file_name):
                 file.write(data)
         print(f"[INFO] Finished receiving file: {file_path}")
         print(f"[INFO] The server has been notified.\n")
-        udp_socket.sendto(b"File received", (_[0], SERVER_PORT))
+        udp_socket.sendto(b"ACK", (_[0], SERVER_PORT))
 
     except FileNotFoundError:
         print(f"[ERROR] Could not write to file: {file_path}")
@@ -36,17 +36,14 @@ def request_files(file_count):
     start_time = time.time()
 
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(f"[INFO] Sending request for {file_count} files to server.")
+    print(f"[INFO] Requesting {file_count} files from server.")
     udp_socket.sendto(str(file_count).encode(), (SERVER_HOST, SERVER_PORT))
 
     for i in range(file_count):
         receive_single_file(udp_socket, f"large-{i}.obj")
         receive_single_file(udp_socket, f"small-{i}.obj")
-
     print(f"[INFO] Received all {file_count} files.")
-    print(f"[INFO] The server has been notified.\n")
 
-    udp_socket.sendto(b"Files received", (SERVER_HOST, SERVER_PORT))
     udp_socket.close()
     print(f"[INFO] Connection closed.")
 
