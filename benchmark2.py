@@ -53,7 +53,7 @@ def run_benchmark(num_runs):
         elapsed_time = udpclient2.receive_all_files()
         results['packet_delay_normal'].append(elapsed_time)
 
-        for duplication in []:
+        for duplication in [0, 5, 10]:
             tc.clear_rules()
             tc.apply_packet_duplication(duplication)
             elapsed_time = udpclient2.receive_all_files()

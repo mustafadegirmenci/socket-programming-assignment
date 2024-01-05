@@ -62,15 +62,17 @@ def send_single_file(file_name, client_address):
             while True:
                 try:
                     data, client_address = sock.recvfrom(BUFFER_SIZE)
-                    if data.decode() == f"ACK{packet_index}":
-                        packet_index += 1
-                        break
-                    else:
-                        print(f"[INFO] Got {data} instead of ACK{packet_index}...")
-                        break
+                    is_ack = data.decode() == f"ACK{packet_index}"
                 except socket.timeout:
                     print(f"[INFO] Timeout occurred, while receiving ACK{packet_index}...")
                     continue
+
+            if is_ack:
+                packet_index += 1
+                break
+            else:
+                print(f"[INFO] Got {data} instead of ACK{packet_index}...")
+                break
 
         print(f"[INFO] File {file_name} sent.\n")
 
