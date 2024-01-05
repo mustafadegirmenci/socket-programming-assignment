@@ -61,6 +61,8 @@ def send_single_file(file_name, client_address):
             if data.decode() == f"ACK{packet_index}":
                 print(f"[INFO] Got ACK{packet_index}...")
                 packet_index += 1
+            else:
+                print(f"[INFO] Got {data} instead of ACK{packet_index}...")
 
         print(f"[INFO] File {file_name} sent.\n")
 
