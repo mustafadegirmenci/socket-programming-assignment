@@ -1,80 +1,50 @@
-import os
 import socket
 import time
 
-SERVER_HOST = '172.17.0.2'
-SERVER_PORT = 8000
-FOLDER_RELATIVE_PATH = 'ReceivedObjects'
+UDP_IP = "localhost"
+UDP_PORT = 8000
 BUFFER_SIZE = 1024
-FILE_REQUEST_LIMIT = 10
 
 
-def receive_single_file(udp_socket, file_name):
-    print(f"[INFO] Receiving file: {file_name}.")
-    file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
-
-    try:
-        with open(file_path, "wb") as file:
-            received_data = b""
-            while True:
-                data, _ = udp_socket.recvfrom(BUFFER_SIZE)
-                sequence_number = int(data[:4].decode())
-                data = data[4:]
-
-                if data.endswith(b"EOF"):
-                    received_data += data[:-3]
-                    break
-                received_data += data
-
-            file.write(received_data)
-            print(f"[INFO] Finished receiving file: {file_path}")
-
-            udp_socket.sendto(f"{sequence_number:04d}".encode(), (_[0], SERVER_PORT))
-            print(f"[INFO] The server has been notified.\n")
-
-    except FileNotFoundError:
-        print(f"[ERROR] Could not write to file: {file_path}")
-
-    except Exception as e:
-        print(f"[ERROR] Exception occurred during file receive: {e}")
+def send_packet(data, sequence_number):
+    message = str(sequence_number) + ':' + data
+    sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
 
 
-def request_files(file_count):
-    start_time = time.time()
-
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(f"[INFO] Requesting {file_count} files from server.")
-    udp_socket.sendto(str(file_count).encode(), (SERVER_HOST, SERVER_PORT))
-
-    for i in range(file_count):
-        udp_socket.sendto(f"{i:04d}".encode(), (SERVER_HOST, SERVER_PORT))
-        receive_single_file(udp_socket, f"large-{i}.obj")
-
-        udp_socket.sendto(f"{i + 1:04d}".encode(), (SERVER_HOST, SERVER_PORT))
-        receive_single_file(udp_socket, f"small-{i}.obj")
-
-    print(f"[INFO] Received all {file_count} files.")
-
-    udp_socket.close()
-    print(f"[INFO] Connection closed.")
-
-    elapsed_time = time.time() - start_time
-    return elapsed_time
+def receive_packet():
+    data, addr = sock.recvfrom(BUFFER_SIZE)
+    print(f"received packet: {data.decode()}")
+    return data.decode()
 
 
-def request_files_and_measure_time(requested_file_count):
-    try:
-        if requested_file_count > FILE_REQUEST_LIMIT:
-            print(f"[WARNING] Requested file count ({requested_file_count}) exceeds the limit.")
-            print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files.\n")
-            requested_file_count = FILE_REQUEST_LIMIT
+if __name__ == "__main__":
 
-        if not os.path.exists(FOLDER_RELATIVE_PATH):
-            print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
-            os.mkdir(FOLDER_RELATIVE_PATH)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    while True:
+        # Sending Call 0
+        send_packet("Data for Call 0", 0)
+        print("Sent Call 0")
+        time.sleep(2)  # Simulate delay
 
-        elapsed_time = request_files(requested_file_count)
-        return elapsed_time
+        # Wait for ACK0
+        print("Waiting for ACK0...")
+        data = receive_packet()
+        sequence_number, received_data = data.split(':', 1)
+        sequence_number = int(sequence_number)
 
-    except ValueError:
-        print("[ERROR] Please provide a valid integer for file count.")
+        if sequence_number == 0 and received_data == "ACK0":
+            print("Received ACK0")
+
+        # Sending Call 1
+        send_packet("Data for Call 1", 1)
+        print("Sent Call 1")
+        time.sleep(2)  # Simulate delay
+
+        # Wait for ACK1
+        print("Waiting for ACK1...")
+        data = receive_packet()
+        sequence_number, received_data = data.split(':', 1)
+        sequence_number = int(sequence_number)
+
+        if sequence_number == 1 and received_data == "ACK1":
+            print("Received ACK1")

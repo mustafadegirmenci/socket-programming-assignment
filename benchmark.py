@@ -66,10 +66,10 @@ def calculate_average(results, num_runs):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("[ERROR] Usage: python script_name.py <num_benchmarks>")
-        sys.exit(1)
-
-    num_benchmarks = int(sys.argv[1])
+        print("[WARNING] Usage: python script_name.py <num_benchmarks>")
+        num_benchmarks = 1
+    else:
+        num_benchmarks = int(sys.argv[1])
 
     print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
     benchmark_results = run_benchmark(num_benchmarks)
