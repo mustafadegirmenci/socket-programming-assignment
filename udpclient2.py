@@ -38,6 +38,7 @@ def receive_single_file(sock, file_name):
                     checksum_and_data, _ = rdt_rcv(sock)
                 if checksum.validate_checksum(checksum_and_data):
                     file.write(checksum.extract_data(checksum_and_data))
+                    print(f"[INFO] Sending ACK{packet_index}.")
                     rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
                     ack_timeout = False
                     packet_index += 1
