@@ -22,13 +22,25 @@ def rdt_rcv(sock) -> (bytes, (str, int)):  # data, (ip, port)
 
 def receive_single_file(sock, file_name):
 
+    prev_packet_count = 0
     while True:
         try:
             packet_count_info, _ = rdt_rcv(sock)
             packet_count = int(packet_count_info.decode().split(":")[1])
             print(f"[INFO] {packet_count} packets are coming for file {file_name}...")
+
+            prev_packet_count = packet_count
             break
         except socket.timeout:
+            while True:
+                try:
+                    print(f"[INFO] Sending ACK{prev_packet_count - 1}")
+                    rdt_send(sock, f"ACK{prev_packet_count - 1}", (SERVER_IP, SERVER_PORT))
+                    print(f"[INFO] Sent ACK{prev_packet_count - 1} successfully")
+                    break
+                except socket.timeout:
+                    print(f"[INFO] Timeout occured while sending ACK{prev_packet_count - 1}")
+                    continue
             continue
 
     file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
