@@ -44,17 +44,19 @@ def send_single_file(file_name, client_address):
 
         packet_index = 0
         packet_timeout = False
+        ack_timeout = False
         while packet_index < packet_count:
-            try:
-                if not packet_timeout:
-                    packet = file.read(BUFFER_SIZE - checksum.CHECKSUM_LENGTH)
-                rdt_send(packet, client_address)
-                print(f"[INFO] Sent packet{packet_index} of file {file_name}...")
-                packet_timeout = False
-            except socket.timeout:
-                packet_timeout = True
-                print(f"[INFO] Timeout occurred, while sending packet {packet_index}...")
-                continue
+            if not ack_timeout:
+                try:
+                    if not packet_timeout:
+                        packet = file.read(BUFFER_SIZE - checksum.CHECKSUM_LENGTH)
+                    rdt_send(packet, client_address)
+                    print(f"[INFO] Sent packet{packet_index} of file {file_name}...")
+                    packet_timeout = False
+                except socket.timeout:
+                    packet_timeout = True
+                    print(f"[INFO] Timeout occurred, while sending packet {packet_index}...")
+                    continue
 
             try:
                 print(f"[INFO] Waiting for ACK{packet_index}...")
@@ -62,9 +64,11 @@ def send_single_file(file_name, client_address):
                 if data.decode() == f"ACK{packet_index}":
                     print(f"[INFO] Got ACK{packet_index}...")
                     packet_index += 1
+                    ack_timeout = False
                 else:
                     print(f"[INFO] Got {data} instead of ACK{packet_index}...")
             except socket.timeout:
+                ack_timeout = True
                 print(f"[INFO] Timeout occurred, while receiving ACK{packet_index}...")
 
         print(f"[INFO] File {file_name} sent.\n")
