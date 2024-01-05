@@ -33,7 +33,6 @@ def receive_single_file(sock, file_name):
         while packet_index < packet_count:
             print("[INFO] Waiting for next packet...")
             sock.settimeout(TIMEOUT)
-            checksum_and_data, _ = None, None
             try:
                 if not ack_timeout:
                     checksum_and_data, _ = rdt_rcv(sock)
