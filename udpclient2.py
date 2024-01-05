@@ -41,7 +41,6 @@ def receive_single_file(sock, file_name):
                 try:
                     checksum_and_data, _ = rdt_rcv(sock)
                     packet_valid = checksum.validate_checksum(checksum_and_data)
-                    file.write(checksum.extract_data(checksum_and_data))
                     break
                 except socket.timeout:
                     continue
