@@ -53,6 +53,7 @@ def receive_single_file(sock, file_name):
             except socket.timeout:
                 ack_timeout = True
                 print(f"[INFO] Packet not received within {TIMEOUT} seconds. Resending the ACK.")
+                packet_index -= 1
                 continue
 
     print(f"[INFO] Received file {file_name}.\n")
