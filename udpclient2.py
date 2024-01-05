@@ -32,8 +32,11 @@ def receive_single_file(sock, file_name):
         while packet_index < packet_count:
             print("[INFO] Waiting for next packet...")
             sock.settimeout(TIMEOUT)
+            ack_timeout = False
+            checksum_and_data, _ = None, None
             try:
-                checksum_and_data, _ = rdt_rcv(sock)
+                if not ack_timeout:
+                    checksum_and_data, _ = rdt_rcv(sock)
                 if checksum.validate_checksum(checksum_and_data):
                     file.write(checksum.extract_data(checksum_and_data))
                     print(f"[INFO] Sending ACK{packet_index} for file {file_name}...")
@@ -43,6 +46,7 @@ def receive_single_file(sock, file_name):
                     print(f"[INFO] Sending NAK{packet_index} for file {file_name}.........")
                     rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
             except socket.timeout:
+                ack_timeout = True
                 print(f"[INFO] Packet not received within {TIMEOUT} seconds. Resending the ACK.")
                 rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
 
