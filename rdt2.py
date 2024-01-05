@@ -8,7 +8,7 @@ import pdb
 # Constants
 PAYLOAD = 1000
 CPORT = 8000
-SPORT = 8000
+SPORT = 8001
 TIMEOUT = 0.05
 TWAIT = 10 * TIMEOUT
 TYPE_DATA = 12
@@ -180,14 +180,14 @@ def rdt_send(sockd, byte_msg):
                 # Receive ACK (or DATA)
                 try:
                     recv_msg = udt_recv(sock, PAYLOAD + HEADER_SIZE)
-                    pdb.set_trace()
+
                 except socket.error as err_msg:
                     print("Socket receive error: ", err_msg)
                     return -1
 
                 # Check if received packet is corrupted or not what we expect
                 if is_corrupt(recv_msg) or not is_ack(recv_msg, send_seq_num):
-                    pdb.set_trace()
+
                     print(f"Received corrupted or unexpected packet. Waiting for ACK {send_seq_num}")
                 else:
                     print(f"Received expected ACK {send_seq_num}")
