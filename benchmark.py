@@ -10,10 +10,13 @@ PACKET_DELAY_JITTER = 5
 
 def plot_with_confidence_intervals(x_values, y_values_dict, title, xlabel, ylabel):
     means = [np.mean(times) for times in y_values_dict.values()]
-    std_devs = [np.std(times) for times in y_values_dict.values()]
-    sample_sizes = [len(times) for times in y_values_dict.values()]
 
-    std_errs = [1.96 * std_dev / np.sqrt(sample_size) for std_dev, sample_size in zip(std_devs, sample_sizes)]
+    std_errs = []
+    for times in y_values_dict.values():
+        if isinstance(times, float):
+            std_errs.append(0)
+        else:
+            std_errs.append(1.96 * np.std(times) / np.sqrt(len(times)))
 
     plt.figure(figsize=(6, 4))
     plt.errorbar(x_values, means, yerr=std_errs, fmt='o', capsize=5)
