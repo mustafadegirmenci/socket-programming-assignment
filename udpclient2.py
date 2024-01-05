@@ -25,7 +25,12 @@ def receive_single_file(sock, file_name):
 
     checksum_and_data, _ = rdt_rcv(sock)
 
-    packet_count = int(checksum_and_data.decode().split(":")[1])
+    try:
+        packet_count = int(checksum_and_data.decode().split(":")[1])
+        print(checksum_and_data.decode())
+    except UnicodeDecodeError:
+        print(checksum_and_data)
+
     print(f"[INFO] {packet_count} packets are coming for file {file_name}...")
     file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
 
