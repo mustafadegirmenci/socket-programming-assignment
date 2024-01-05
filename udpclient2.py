@@ -44,7 +44,7 @@ def receive_single_file(sock, file_name):
                 if checksum.validate_checksum(checksum_and_data):
                     file.write(checksum.extract_data(checksum_and_data))
                     print(f"[INFO] Sending ACK{packet_index}.")
-                    rdt_send(sock, f"ACK{packet_index} for packet {packet_index}", (SERVER_IP, SERVER_PORT))
+                    rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
                     ack_timeout = False
                     print(f"[INFO]      Sent ACK{packet_index}.")
                     packet_index += 1
