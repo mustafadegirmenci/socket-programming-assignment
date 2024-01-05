@@ -3,11 +3,8 @@
 
 import sys
 import os
-import pdb
-import pdb
 
-import rdt2 as rdt
-
+from old import rdt2 as rdt
 
 PAYLOAD=rdt.PAYLOAD
 DROP_RATE = 0.1

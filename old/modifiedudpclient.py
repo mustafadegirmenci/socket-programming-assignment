@@ -3,7 +3,8 @@
 
 import sys
 import os
-import rdt2 as rdt
+from old import rdt2 as rdt
+
 PAYLOAD = rdt.PAYLOAD
 SERVER_IP = "localhost"
 FOLDER_RELATIVE_PATH = "objects"

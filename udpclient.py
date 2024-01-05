@@ -1,85 +1,110 @@
-import os
-
+import socket
 import time
-import rdt2
 
-SERVER_HOST = '172.17.0.2'
+import checksum
+
+SERVER_IP = "172.17.0.2"
 SERVER_PORT = 8000
-FOLDER_RELATIVE_PATH = 'ReceivedObjects'
-FILE_REQUEST_LIMIT = 10
+BUFFER_SIZE = 1024
+FILE_COUNT = 10
+FOLDER_RELATIVE_PATH = "ReceivedObjects"
+TIMEOUT = 0.2
 
 
-def receive_single_file(server_socket, file_name):
-    print(f"[INFO] Receiving file: {file_name}.")
+def rdt_send(sock, message: str, address: (str, int)):
+    sock.sendto(message.encode(), address)
+
+
+def rdt_rcv(sock) -> (bytes, (str, int)):  # data, (ip, port)
+    received = sock.recvfrom(BUFFER_SIZE)
+    return received
+
+
+def receive_single_file(sock, file_name):
+
+    prev_packet_count = 0
+    while True:
+        try:
+            print(f"[INFO] Receiving packet count for file {file_name}.")
+            packet_count_info, _ = rdt_rcv(sock)
+            packet_count = int(packet_count_info.decode().split(":")[1])
+            print(f"[INFO] {packet_count} packets are coming for file {file_name}...")
+
+            prev_packet_count = packet_count
+            break
+        except socket.timeout:
+            while True:
+                try:
+                    print(f"[INFO] Sending ACK{prev_packet_count - 1}")
+                    rdt_send(sock, f"ACK{prev_packet_count - 1}", (SERVER_IP, SERVER_PORT))
+                    print(f"[INFO] Sent ACK{prev_packet_count - 1} successfully")
+                    break
+                except socket.timeout:
+                    print(f"[INFO] Timeout occured while sending ACK{prev_packet_count - 1}")
+                    continue
+            continue
+
     file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
 
-    try:
-        with open(file_path, "wb") as file:
+    packet_index = 0
+    with open(file_path, "wb") as file:
+        sock.settimeout(TIMEOUT)
+        while packet_index < packet_count:
             while True:
-                data = rdt2.rdt_recv(server_socket, 1024)
-                if data.endswith(b"EOF"):
-                    file.write(data[:-3])
+                try:
+                    checksum_and_data, _ = rdt_rcv(sock)
+                    packet_valid = checksum.validate_checksum(checksum_and_data)
                     break
-                file.write(data)
-        print(f"[INFO] Finished receiving file: {file_path}")
-        print(f"[INFO] The server has been notified.\n")
-        rdt2.rdt_send(server_socket, b"File received")
+                except socket.timeout:
+                    while True:
+                        try:
+                            print(f"[INFO] Sending ACK{packet_index - 1}")
+                            rdt_send(sock, f"ACK{packet_index - 1}", (SERVER_IP, SERVER_PORT))
+                            print(f"[INFO] Sent ACK{packet_index - 1} successfully")
+                            break
+                        except socket.timeout:
+                            print(f"[INFO] Timeout occured while sending ACK{packet_index}")
+                            continue
+                    continue
 
-    except FileNotFoundError:
-        print(f"[ERROR] Could not write to file: {file_path}")
+            if packet_valid:
+                file.write(checksum.extract_data(checksum_and_data))
 
-    except Exception as e:
-        print(f"[ERROR] Exception occurred during file receive: {e}")
+                while True:
+                    try:
+                        print(f"[INFO] Sending ACK{packet_index}")
+                        rdt_send(sock, f"ACK{packet_index}", (SERVER_IP, SERVER_PORT))
+                        print(f"[INFO] Sent ACK{packet_index} successfully")
+                        packet_index += 1
+                        break
+                    except socket.timeout:
+                        print(f"[INFO] Timeout occured while sending ACK{packet_index}")
+                        continue
+            else:
+                while True:
+                    try:
+                        rdt_send(sock, f"NAK{packet_index}", (SERVER_IP, SERVER_PORT))
+                        break
+                    except socket.timeout:
+                        continue
+
+    print(f"[INFO] Received file {file_name}.\n")
 
 
-def request_files(file_count):
+def receive_all_files():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    while True:
+        try:
+            rdt_send(sock, f"GIVE ME THE FILES", (SERVER_IP, SERVER_PORT))
+            break
+        except socket.timeout:
+            continue
+
     start_time = time.time()
+    for file_index in range(FILE_COUNT):
+        receive_single_file(sock, f"large-{file_index}.obj")
+        receive_single_file(sock, f"small-{file_index}.obj")
 
-    client_socket = rdt2.rdt_socket()
-    if client_socket is None:
-        print("[ERROR] Failed to create RDT socket")
-        return
-
-    rdt2.rdt_peer(SERVER_HOST, SERVER_PORT)
-
-    print(f"[INFO] Requesting {file_count} files from the server.\n")
-    rdt2.rdt_send(client_socket, str(file_count).encode())
-
-    for i in range(file_count):
-        receive_single_file(client_socket, f"large-{i}.obj")
-        receive_single_file(client_socket, f"small-{i}.obj")
-
-    print(f"[INFO] Received all {file_count} files.")
-    print(f"[INFO] The server has been notified.\n")
-
-    rdt2.rdt_send(client_socket, b"Files received")
-    rdt2.rdt_close(client_socket)
-    print(f"[INFO] Connection closed.")
-
-    elapsed_time = time.time() - start_time
-    return elapsed_time
-
-
-def request_files_and_measure_time(requested_file_count):
-    try:
-        if requested_file_count > 10:
-            print(f"[WARNING] Requested file count ({requested_file_count}) exceeds the limit.")
-            print(f"[WARNING] Requesting {FILE_REQUEST_LIMIT} files.\n")
-            requested_file_count = FILE_REQUEST_LIMIT
-
-        if not os.path.exists(FOLDER_RELATIVE_PATH):
-            print(f"[WARNING] Folder '{FOLDER_RELATIVE_PATH}' does not exist. Creating...\n")
-            os.mkdir(FOLDER_RELATIVE_PATH)
-
-        elapsed_time = request_files(requested_file_count)
-        return elapsed_time
-
-    except ValueError:
-        print("[ERROR] Please provide a valid integer for file count.")
-
-
-
-if __name__ == "__main__":
-    # Adjust the number of files you want to request here
-    time_taken = request_files_and_measure_time(5)
-    print(f"Total time taken: {time_taken:.2f} seconds")
+    end_time = time.time()
+    return end_time - start_time
