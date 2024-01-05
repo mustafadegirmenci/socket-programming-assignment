@@ -2,7 +2,7 @@ import os
 import socket
 import time
 
-SERVER_HOST = '172.17.0.2'
+SERVER_HOST = "localhost"
 SERVER_PORT = 8000
 FOLDER_RELATIVE_PATH = 'ReceivedObjects'
 FILE_REQUEST_LIMIT = 10

@@ -1,7 +1,7 @@
 import socket
 import threading
 
-SERVER_HOST = "172.17.0.2"
+SERVER_HOST = "localhost"
 SERVER_PORT = 8000
 FOLDER_RELATIVE_PATH = "../root/objects"
 BACKLOG_LIMIT = 5

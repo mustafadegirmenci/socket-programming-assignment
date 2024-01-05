@@ -4,8 +4,11 @@
 import sys
 import os
 import pdb
+import pdb
 
 import rdt2 as rdt
+
+
 PAYLOAD=rdt.PAYLOAD
 DROP_RATE = 0.1
 ERROR_RATE=0.1
@@ -20,7 +23,7 @@ def send_file(filepath, server_socket):
         with open(filepath, 'rb') as file:
             file_length = os.path.getsize(filepath)
             filename = os.path.basename(filepath)
-            pdb.set_trace()
+
             print(f"[INFO]Sending {filename} ({file_length} bytes)")
 
             # Sending file size and file name
@@ -41,7 +44,7 @@ def send_file(filepath, server_socket):
                 data = file.read(PAYLOAD)
                 if not data:
                     break
-                pdb.set_trace()
+
                 sent += rdt.rdt_send(server_socket, data)
                 print(f"[INFO]Server progress: {sent} / {file_length}")
 
@@ -58,6 +61,7 @@ def main():
 
     directory = FOLDER_RELATIVE_PATH
     if not os.path.isdir(directory):
+
         print(f"Directory {directory} does not exist.")
         return -1
 
@@ -65,7 +69,8 @@ def main():
 
     server_socket = rdt.rdt_socket()
     if server_socket is None:
-        sys.exit(0)
+        print("none")
+        return -1
 
     if rdt.rdt_bind(server_socket, rdt.SPORT) == -1:
         print("[INFO]Cannot bin server socket")
@@ -84,4 +89,5 @@ def main():
     print("Server program terminated")
 
 if __name__ == "__main__":
+
     main()

@@ -51,19 +51,22 @@ def receive_file(client_socket, directory):
         return False
 
 def main():
-    directory = sys.argv[2]
+    directory =FOLDER_RELATIVE_PATH
     os.makedirs(directory, exist_ok=True)
 
-    rdt.rdt_network_init(sys.argv[3], sys.argv[4])
+    rdt.rdt_network_init(0.1, 0.1)
 
     client_socket = rdt.rdt_socket()
     if client_socket is None:
+        print("client empty")
         sys.exit(0)
 
     if rdt.rdt_bind(client_socket, rdt.CPORT) == -1:
+        print("not bind ")
         sys.exit(0)
 
     if rdt.rdt_peer(SERVER_IP, rdt.SPORT) == -1:
+        print("not peer")
         sys.exit(0)
 
     while True:
@@ -71,3 +74,7 @@ def main():
             break
 
     rdt.rdt_close(client_socket)
+
+
+if __name__ == "__main__":
+    main()
