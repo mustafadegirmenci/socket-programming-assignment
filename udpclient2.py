@@ -6,6 +6,7 @@ import checksum
 SERVER_IP = "localhost"
 SERVER_PORT = 8000
 BUFFER_SIZE = 1024
+REQUESTED_FILE_COUNT = 10
 
 
 def rdt_send(message: str, address: (str, int)):
@@ -22,13 +23,17 @@ def rdt_rcv() -> (bytes, (str, int)):  # data, (ip, port)
 if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    while True:
-        rdt_send("GIVE ME A DUMMYFILE", (SERVER_IP, SERVER_PORT))
-        time.sleep(2)
+    for requested_file_index in range(REQUESTED_FILE_COUNT):
+        rdt_send(f"GIVE ME THE FILE:{requested_file_index}", (SERVER_IP, SERVER_PORT))
 
-        data, _ = rdt_rcv()
+        while True:
+            time.sleep(1)
 
-        if checksum.validate_checksum(data):
-            rdt_send("ACK", (SERVER_IP, SERVER_PORT))
-        else:
-            rdt_send("NAK", (SERVER_IP, SERVER_PORT))
+            data, _ = rdt_rcv()
+
+            if checksum.validate_checksum(data):
+                rdt_send(f"ACKFILE{requested_file_index}", (SERVER_IP, SERVER_PORT))
+                requested_file_index += 1
+                break
+            else:
+                rdt_send(f"NAKFILE{requested_file_index}", (SERVER_IP, SERVER_PORT))
