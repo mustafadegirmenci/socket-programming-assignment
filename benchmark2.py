@@ -2,7 +2,7 @@ import sys
 
 from matplotlib import pyplot as plt
 import tc
-import tcpclient
+import udpclient2
 
 PACKET_DELAY_JITTER = 5
 
@@ -20,33 +20,33 @@ def run_benchmark(num_runs):
         tc.clear_rules()
 
         # No rules test
-        elapsed_time_no_rules = tcpclient.request_files_and_measure_time(10)
+        elapsed_time_no_rules = udpclient2.request_files_and_measure_time(10)
         results['no_rules'].append(elapsed_time_no_rules)
 
         # Packet Loss tests
         for loss in [0, 5, 10, 15]:
             tc.clear_rules()
             tc.apply_packet_loss(loss)
-            elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
+            elapsed_time = udpclient2.request_files_and_measure_time(requested_file_count=10)
             results['packet_loss'][loss].append(elapsed_time)
 
         # Packet Corruption tests
         for corruption in [0, 5, 10]:
             tc.clear_rules()
             tc.apply_packet_corruption(corruption)
-            elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
+            elapsed_time = udpclient2.request_files_and_measure_time(requested_file_count=10)
             results['packet_corruption'][corruption].append(elapsed_time)
 
         # Packet Delay (Uniform)
         tc.clear_rules()
         tc.apply_packet_delay_uniform(100, PACKET_DELAY_JITTER)
-        elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
+        elapsed_time = udpclient2.request_files_and_measure_time(requested_file_count=10)
         results['packet_delay_uniform'].append(elapsed_time)
 
         # Packet Delay (Normal)
         tc.clear_rules()
         tc.apply_packet_delay_normal(100, PACKET_DELAY_JITTER)
-        elapsed_time = tcpclient.request_files_and_measure_time(requested_file_count=10)
+        elapsed_time = udpclient2.request_files_and_measure_time(requested_file_count=10)
         results['packet_delay_normal'].append(elapsed_time)
 
     return results
@@ -66,10 +66,10 @@ def calculate_average(results, num_runs):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("[WARNING] Usage: python script_name.py <num_benchmarks>")
-        num_benchmarks = 1
-    else:
-        num_benchmarks = int(sys.argv[1])
+        print("[ERROR] Usage: python script_name.py <num_benchmarks>")
+        sys.exit(1)
+
+    num_benchmarks = int(sys.argv[1])
 
     print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''}...\n")
     benchmark_results = run_benchmark(num_benchmarks)
