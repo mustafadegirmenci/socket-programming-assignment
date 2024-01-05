@@ -15,27 +15,22 @@ def receive_single_file(udp_socket, file_name):
 
     try:
         with open(file_path, "wb") as file:
-            i = 0
             received_data = b""
             while True:
-                print(f"Received {i} times.")
-                i += 1
                 data, _ = udp_socket.recvfrom(BUFFER_SIZE)
-                seq_number = int(data[:4].decode())
-                if seq_number != i:
-                    print(f"[WARNING] Received out-of-order packet {seq_number}. Ignoring.")
-                    continue
+                sequence_number = int(data[:4].decode())
+                data = data[4:]
 
-                if data[4:].endswith(b"EOF"):
-                    received_data += data[4:-3]
+                if data.endswith(b"EOF"):
+                    received_data += data[:-3]
                     break
-                received_data += data[4:]
-
-                ack_packet = f"{seq_number:04d}".encode()
-                udp_socket.sendto(ack_packet, (_[0], SERVER_PORT))
+                received_data += data
 
             file.write(received_data)
             print(f"[INFO] Finished receiving file: {file_path}")
+
+            udp_socket.sendto(f"{sequence_number:04d}".encode(), (_[0], SERVER_PORT))
+            print(f"[INFO] The server has been notified.\n")
 
     except FileNotFoundError:
         print(f"[ERROR] Could not write to file: {file_path}")
@@ -52,15 +47,14 @@ def request_files(file_count):
     udp_socket.sendto(str(file_count).encode(), (SERVER_HOST, SERVER_PORT))
 
     for i in range(file_count):
-        seq_number = 1 + i * 2  # Adjust sequence number to handle large and small files separately
-        udp_socket.sendto(f"{seq_number:04d}".encode(), (SERVER_HOST, SERVER_PORT))
+        udp_socket.sendto(f"{i:04d}".encode(), (SERVER_HOST, SERVER_PORT))
         receive_single_file(udp_socket, f"large-{i}.obj")
 
-        seq_number += 1
-        udp_socket.sendto(f"{seq_number:04d}".encode(), (SERVER_HOST, SERVER_PORT))
+        udp_socket.sendto(f"{i + 1:04d}".encode(), (SERVER_HOST, SERVER_PORT))
         receive_single_file(udp_socket, f"small-{i}.obj")
 
     print(f"[INFO] Received all {file_count} files.")
+
     udp_socket.close()
     print(f"[INFO] Connection closed.")
 
