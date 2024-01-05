@@ -19,7 +19,7 @@ def run_benchmark_no_rules(num_runs):
             continue
 
     plt.figure(figsize=(6, 4))
-    plt.plot(list(results), [sum(times) / len(times) for times in results], marker='o')
+    plt.plot(list(results), [int(sum(times) / len(times)) for times in results], marker='o')
     plt.title('No Rules')
     plt.xlabel('Run Number')
     plt.ylabel('Average Elapsed Time (s)')
