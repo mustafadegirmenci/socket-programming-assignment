@@ -150,6 +150,8 @@ if __name__ == "__main__":
     print(f"[INFO] Starting {num_benchmarks} benchmark{'s' if num_benchmarks > 1 else ''} for {experiment_type}...\n")
 
     if experiment_type == "norules":
+        run_benchmark_no_rules(num_benchmarks)
+    elif experiment_type == "loss":
         losses_to_test = [0, 5, 10, 15]
         run_benchmark_packet_loss(num_benchmarks, losses_to_test)
     elif experiment_type == "corruption":
