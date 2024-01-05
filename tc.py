@@ -1,7 +1,7 @@
 import subprocess
 
 DEFAULT_INTERFACE = "eth0"
-TC_ACTIVE = True
+TC_ACTIVE = False
 
 
 def apply_packet_loss(loss_percentage, interface=DEFAULT_INTERFACE):
