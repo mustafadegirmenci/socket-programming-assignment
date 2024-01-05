@@ -27,6 +27,7 @@ def rdt_rcv() -> (bytes, (str, int)):  # data, (ip, port)
 
 
 def send_single_file(file_name, client_address):
+    sock.settimeout(TIMEOUT)
     file_path = f"{FOLDER_RELATIVE_PATH}/{file_name}"
     with open(file_path, "rb") as file:
         print(f"[INFO] Sending file {file_name}...")
@@ -56,7 +57,6 @@ def send_single_file(file_name, client_address):
                 continue
 
             print(f"[INFO] Waiting for ACK{packet_index}...")
-            sock.settimeout(TIMEOUT)
             try:
                 data, client_address = sock.recvfrom(BUFFER_SIZE)
                 if data.decode() == f"ACK{packet_index}":
